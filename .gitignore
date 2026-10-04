@@ -7,3 +7,4 @@ translated_audio.mp3
 .streamlit/secrets.toml
 chats.json
 plans.json
+energy_log.json

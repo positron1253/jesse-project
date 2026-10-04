@@ -357,3 +357,32 @@ def compare_practice(lat, lon, crop_id, season, duration, taw_per_m=130, water="
         out[name]["saved_pct_p90"] = _pct(per_year, 0.90) if per_year else None
     out["n_years"] = len(arms["baseline"])
     return out
+
+
+# ---------------------------------------------------------------- series for charts
+def season_series(lat, lon, crop_id, season, duration, taw_per_m=130, water_level="rain", hist=None):
+    """Per past season: relative yield, irrigation (gross mm) and rain, for charts. Oldest first."""
+    hist = hist or fetch_history(round(lat, 2), round(lon, 2))
+    m, dd = SEASON_START[season]
+    policy = "rainfed" if water_level == "rain" else "scheduled"
+    out = []
+    for y in range(hist["dates"][0].year, hist["dates"][-1].year):
+        res = simulate(hist, crop_id, date(y, m, dd), duration, taw_per_m, policy, water_level)
+        if res:
+            out.append({"year": y, "rel_yield": res["rel_yield"], "irrigation_mm": res["irrigation_mm"],
+                        "rain_mm": res["rain_mm"], "n_irrig": res["n_irrig"]})
+    return out
+
+
+def season_rain_stats(hist, season, duration=120):
+    """Dry-year / usual / wet-year rainfall (10th, 50th, 90th percentile) over a `duration`-day season window."""
+    m, dd = SEASON_START[season]
+    tot = []
+    for y in range(hist["dates"][0].year, hist["dates"][-1].year):
+        i0 = hist["index"].get(date(y, m, dd))
+        if i0 is None or i0 + duration >= len(hist["dates"]):
+            continue
+        tot.append(sum(hist["rain"][i0:i0 + duration]))
+    if not tot:
+        return None
+    return {"p10": _pct(tot, 0.10), "p50": _pct(tot, 0.50), "p90": _pct(tot, 0.90), "n": len(tot)}

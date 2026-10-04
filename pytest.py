@@ -17,7 +17,7 @@ import seaborn as sns
 import plotly.express as px
 import plotly.graph_objects as go
 from streamlit_js_eval import streamlit_js_eval, copy_to_clipboard, create_share_link, get_geolocation
-from krishi import crop_view, plan_view, assistant_view, village_view, plans as plans_mod, geo, auth, crop_table
+from krishi import crop_view, plan_view, assistant_view, village_view, water_view, home_view, plans as plans_mod, geo, auth, crop_table
 from krishi import weather as wx
 from krishi.i18n import t, current_lang, set_lang, UI_LANGUAGES, rupees
 from krishi.ui import apply_theme, hero
@@ -644,7 +644,7 @@ def location_inputs(prefix):
 def _finish_login(user_id, user_type):
     st.session_state.current_user = user_id
     st.session_state.current_user_type = user_type
-    st.session_state.view = "crop_prediction" if user_type == "farmer" else "supply_commitments"
+    st.session_state.view = "home"
     st.session_state.plan_step = 1
     st.rerun()
 
@@ -682,7 +682,7 @@ with st.sidebar:
                 st.session_state[k] = None
             for k in ("farm", "plan_step", "guide_cache", "dlg_done"):
                 st.session_state.pop(k, None)
-            st.session_state.view = "communities"
+            st.session_state.view = "home"
             st.rerun()
     else:
         tab1, tab2 = st.tabs([t("auth.login"), t("auth.register")])
@@ -735,23 +735,30 @@ with st.sidebar:
 
 # ---------- Top navigation (replaces the old sidebar menu) ----------
 NAV_VIEWS = {
-    "plan": "crop_prediction", "commitments": "supply_commitments", "needs": "supply_commitments",
-    "post": "vendor_post", "ask": "assistant", "village": "village", "group": "communities", "prices": "market_prices", "tips": "farming_tips",
+    "plan": "crop_prediction", "water": "water_energy", "commitments": "supply_commitments", "needs": "supply_commitments",
+    "post": "vendor_post", "ask": "assistant", "village": "village", "group": "communities", "prices": "market_prices",
+    "tips": "farming_tips",
 }
-NAV_FARMER = ["plan", "ask", "village", "commitments", "group", "prices", "tips"]
-NAV_VENDOR = ["needs", "post", "village", "group", "prices", "tips"]
+VIEW_TITLE = {v: k for k, v in NAV_VIEWS.items()}
+VIEW_TITLE["supply_commitments"] = "commitments"
+VIEW_TITLE["chat"] = "group"
 
 
 def render_nav(user_type):
-    items = NAV_FARMER if user_type == "farmer" else NAV_VENDOR
+    """Every page except Home gets a big Home button and its own title; Home itself is the menu."""
     view = st.session_state.view
-    current = "group" if view == "chat" else next((k for k in items if NAV_VIEWS[k] == view), None)
-    choice = st.segmented_control("nav", items, format_func=lambda k: t(f"nav.{k}"),
-                                  default=current, key=f"nav_{user_type}_{view}", label_visibility="collapsed")
-    if choice and choice != current:
-        st.session_state.view = NAV_VIEWS[choice]
+    if view == "home":
+        return
+    key = VIEW_TITLE.get(view)
+    if view == "supply_commitments" and user_type == "vendor":
+        key = "needs"
+    c1, c2 = st.columns([1, 3])
+    if c1.button(t("nav.home"), key="nav_home", use_container_width=True):
+        st.session_state.view = "home"
         st.session_state.chat_community = None
         st.rerun()
+    if key:
+        c2.markdown(f"### {t('nav.' + key)}")
 
 
 # Main content area - Show different views based on login status
@@ -997,6 +1004,15 @@ else:
             assistant_view.render(user, TOGETHER_API_KEY)
         else:
             st.info("The voice assistant is for farmers.")
+
+    elif st.session_state.view == "home":
+        home_view.render(user, st.session_state.current_user_type)
+
+    elif st.session_state.view == "water_energy":
+        if st.session_state.current_user_type == "farmer":
+            water_view.render(user)
+        else:
+            st.info("The water and energy tab is for farmers.")
 
     elif st.session_state.view == "village":
         village_view.render(user)

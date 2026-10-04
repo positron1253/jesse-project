@@ -258,6 +258,15 @@ def screen_crops(user):
                                  rain=trend["rain_change_pct"], et0=trend["et0_change_pct"]))
     except Exception:
         pass
+    try:
+        hist_ = water_mod.fetch_history(ctx["lat"], ctx["lon"])
+        rs = water_mod.season_rain_stats(hist_, season, 120)
+        if rs:
+            st.info("🌧️ " + t("p2.rain_range", dry=round(rs["p10"]), usual=round(rs["p50"]), wet=round(rs["p90"]), n=rs["n"]))
+        fc_ = water_mod.fetch_forecast(ctx["lat"], ctx["lon"], 7)
+        st.info("📅 " + t("p2.forecast", days=len(fc_), rain=round(sum(d["rain"] for d in fc_)), p=max(d["p_rain"] for d in fc_)))
+    except Exception:
+        pass
     include_perennial = st.checkbox(t("p2.orchard"), value=False, key="plan_perennial")
     nearby = plans.nearby_signals(farm["lat"], farm["lon"], season, _known_ids(), exclude_farmer=user["id"])
     farm["nearby"] = nearby

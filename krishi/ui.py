@@ -18,6 +18,15 @@ THEME_CSS = """
 header[data-testid="stHeader"] { background: rgba(247,250,247,0.92); backdrop-filter: blur(4px); }
 .stDeployButton, [data-testid="stDeployButton"] { display: none; }
 
+/* Home tiles: big, one-thumb buttons */
+.st-key-home_tiles .stButton > button {
+    min-height: 92px; font-size: 1.25rem; font-weight: 700; border-radius: 18px;
+    background: #ffffff; border: 2px solid var(--ks-border); color: var(--ks-text);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+.st-key-home_tiles .stButton > button:hover { border-color: var(--ks-green); background: var(--ks-green-soft); }
+.st-key-nav_home .stButton > button { min-height: 52px; font-size: 1.05rem; font-weight: 700; border-radius: 14px; }
+
 /* Hero banner */
 .ks-hero {
     background: linear-gradient(120deg, var(--ks-green-dark), var(--ks-green) 60%, #558b2f);
