@@ -55,7 +55,7 @@
         "user_id": "8beea4d9-74f7-42b4-a8ce-e95dbacabbff",
         "user_name": "sakshi",
         "user_type": "vendor",
-        "content": "\u2705 Requirement for 1 kg of drt has been met. Thank you to all farmers who contributed!",
+        "content": "✅ Requirement for 1 kg of drt has been met. Thank you to all farmers who contributed!",
         "timestamp": "2025-06-10T11:50:00.961530"
       }
     ],
@@ -189,5 +189,251 @@
     ],
     "messages": [],
     "created_at": "2025-04-28T00:53:04.503114"
+  },
+  {
+    "id": "4a9007cb-c344-488a-a0ec-20b8931d8d6d",
+    "name": "Sangareddy Agro Mart's Community",
+    "vendor_id": "b50ab1e2-1984-468a-a8e7-d0ef39205d84",
+    "vendor_name": "Sangareddy Agro Mart",
+    "members": [
+      {
+        "id": "b50ab1e2-1984-468a-a8e7-d0ef39205d84",
+        "name": "Sangareddy Agro Mart",
+        "type": "vendor"
+      }
+    ],
+    "messages": [
+      {
+        "id": "85eb673c-1c23-475c-b155-8aeae8958eb5",
+        "user_id": "b50ab1e2-1984-468a-a8e7-d0ef39205d84",
+        "user_name": "Sangareddy Agro Mart",
+        "user_type": "vendor",
+        "content": "I need 800 quintal of Rice (paddy) at Rs 2500/quintal, delivery 2027-03-15 to 2027-04-30. Please respond on poll if you can contribute.",
+        "timestamp": "2026-10-04T22:10:36.348842"
+      },
+      {
+        "id": "a9d315f2-1882-4e45-87ed-f97901548d45",
+        "user_id": "b50ab1e2-1984-468a-a8e7-d0ef39205d84",
+        "user_name": "Sangareddy Agro Mart",
+        "user_type": "vendor",
+        "content": "I need 400 quintal of Maize at Rs 2450/quintal, delivery 2027-03-01 to 2027-04-15. Please respond on poll if you can contribute.",
+        "timestamp": "2026-10-04T22:10:36.348842"
+      }
+    ],
+    "created_at": "2026-10-04T22:10:36.348842",
+    "demo": true
+  },
+  {
+    "id": "3578d1a4-68d9-4f22-92b6-877518e9c3b9",
+    "name": "Patancheru Fresh Traders's Community",
+    "vendor_id": "7f82d771-b5b3-4f43-b612-49ece06bc40a",
+    "vendor_name": "Patancheru Fresh Traders",
+    "members": [
+      {
+        "id": "7f82d771-b5b3-4f43-b612-49ece06bc40a",
+        "name": "Patancheru Fresh Traders",
+        "type": "vendor"
+      }
+    ],
+    "messages": [
+      {
+        "id": "643769af-956b-4d38-a13c-87a4adbaec65",
+        "user_id": "7f82d771-b5b3-4f43-b612-49ece06bc40a",
+        "user_name": "Patancheru Fresh Traders",
+        "user_type": "vendor",
+        "content": "I need 250 quintal of Tomato at Rs 1550/quintal, delivery 2027-01-20 to 2027-03-10. Please respond on poll if you can contribute.",
+        "timestamp": "2026-10-04T22:10:36.348842"
+      },
+      {
+        "id": "de0146c4-c659-4b00-b9a0-1e89bba2f18e",
+        "user_id": "7f82d771-b5b3-4f43-b612-49ece06bc40a",
+        "user_name": "Patancheru Fresh Traders",
+        "user_type": "vendor",
+        "content": "I need 150 quintal of Brinjal at Rs 2400/quintal, delivery 2027-01-25 to 2027-03-15. Please respond on poll if you can contribute.",
+        "timestamp": "2026-10-04T22:10:36.348842"
+      },
+      {
+        "id": "002e3695-9a44-43dd-90ba-789c9abf3fcc",
+        "user_id": "7f82d771-b5b3-4f43-b612-49ece06bc40a",
+        "user_name": "Patancheru Fresh Traders",
+        "user_type": "vendor",
+        "content": "I need 80 quintal of Okra (Bhindi) at Rs 2600/quintal, delivery 2027-01-15 to 2027-03-05. Please respond on poll if you can contribute.",
+        "timestamp": "2026-10-04T22:10:36.348842"
+      },
+      {
+        "id": "aa59c6f1-fb1e-49da-9efa-077f6cc19d29",
+        "user_id": "7f82d771-b5b3-4f43-b612-49ece06bc40a",
+        "user_name": "Patancheru Fresh Traders",
+        "user_type": "vendor",
+        "content": "I need 100 quintal of Green Chilli at Rs 4250/quintal, delivery 2027-02-01 to 2027-04-10. Please respond on poll if you can contribute.",
+        "timestamp": "2026-10-04T22:10:36.348842"
+      }
+    ],
+    "created_at": "2026-10-04T22:10:36.348842",
+    "demo": true
+  },
+  {
+    "id": "dfd44973-ada1-4b16-bbb1-3f3c5316fba6",
+    "name": "Sadasivpet Farmers Co-op's Community",
+    "vendor_id": "68255a53-1989-4efa-a0ab-ada13df3b24a",
+    "vendor_name": "Sadasivpet Farmers Co-op",
+    "members": [
+      {
+        "id": "68255a53-1989-4efa-a0ab-ada13df3b24a",
+        "name": "Sadasivpet Farmers Co-op",
+        "type": "vendor"
+      }
+    ],
+    "messages": [
+      {
+        "id": "c93eb6ed-d01a-4020-bf39-640142eefcdd",
+        "user_id": "68255a53-1989-4efa-a0ab-ada13df3b24a",
+        "user_name": "Sadasivpet Farmers Co-op",
+        "user_type": "vendor",
+        "content": "I need 600 quintal of Maize at Rs 2450/quintal, delivery 2027-03-01 to 2027-04-20. Please respond on poll if you can contribute.",
+        "timestamp": "2026-10-04T22:10:36.348842"
+      },
+      {
+        "id": "9bcdca38-16de-4cf6-a0a7-01e64c258185",
+        "user_id": "68255a53-1989-4efa-a0ab-ada13df3b24a",
+        "user_name": "Sadasivpet Farmers Co-op",
+        "user_type": "vendor",
+        "content": "I need 300 quintal of Chana (chickpea) at Rs 6000/quintal, delivery 2027-02-20 to 2027-04-05. Please respond on poll if you can contribute.",
+        "timestamp": "2026-10-04T22:10:36.348842"
+      },
+      {
+        "id": "941c4be9-6ff4-45af-bd25-049c26759012",
+        "user_id": "68255a53-1989-4efa-a0ab-ada13df3b24a",
+        "user_name": "Sadasivpet Farmers Co-op",
+        "user_type": "vendor",
+        "content": "I need 200 quintal of Jowar (sorghum) at Rs 4100/quintal, delivery 2027-03-01 to 2027-04-10. Please respond on poll if you can contribute.",
+        "timestamp": "2026-10-04T22:10:36.348842"
+      }
+    ],
+    "created_at": "2026-10-04T22:10:36.348842",
+    "demo": true
+  },
+  {
+    "id": "052ef391-32e5-415e-8ff0-a50ec6b726ae",
+    "name": "Narsapur Oils and Pulses's Community",
+    "vendor_id": "9eaf3260-3ddb-463f-b8ab-1fdaab6b4c5f",
+    "vendor_name": "Narsapur Oils and Pulses",
+    "members": [
+      {
+        "id": "9eaf3260-3ddb-463f-b8ab-1fdaab6b4c5f",
+        "name": "Narsapur Oils and Pulses",
+        "type": "vendor"
+      }
+    ],
+    "messages": [
+      {
+        "id": "f9d5b32a-4b55-4b3f-a391-1a8a08238c2d",
+        "user_id": "9eaf3260-3ddb-463f-b8ab-1fdaab6b4c5f",
+        "user_name": "Narsapur Oils and Pulses",
+        "user_type": "vendor",
+        "content": "I need 250 quintal of Groundnut at Rs 7650/quintal, delivery 2027-03-10 to 2027-04-25. Please respond on poll if you can contribute.",
+        "timestamp": "2026-10-04T22:10:36.348842"
+      },
+      {
+        "id": "3cd55f05-1604-48c7-b0ee-57719c6ba6d8",
+        "user_id": "9eaf3260-3ddb-463f-b8ab-1fdaab6b4c5f",
+        "user_name": "Narsapur Oils and Pulses",
+        "user_type": "vendor",
+        "content": "I need 120 quintal of Masoor (lentil) at Rs 7150/quintal, delivery 2027-02-25 to 2027-04-10. Please respond on poll if you can contribute.",
+        "timestamp": "2026-10-04T22:10:36.348842"
+      },
+      {
+        "id": "f9674c69-3de1-45a7-a937-e42655026aca",
+        "user_id": "9eaf3260-3ddb-463f-b8ab-1fdaab6b4c5f",
+        "user_name": "Narsapur Oils and Pulses",
+        "user_type": "vendor",
+        "content": "I need 200 quintal of Chana (chickpea) at Rs 6000/quintal, delivery 2027-02-20 to 2027-04-05. Please respond on poll if you can contribute.",
+        "timestamp": "2026-10-04T22:10:36.348842"
+      }
+    ],
+    "created_at": "2026-10-04T22:10:36.348842",
+    "demo": true
+  },
+  {
+    "id": "e4fdd681-facf-4049-9201-ce4f1c2234d7",
+    "name": "Bowenpally Market Agents's Community",
+    "vendor_id": "73209b99-e61a-48d3-9433-7d174a08179e",
+    "vendor_name": "Bowenpally Market Agents",
+    "members": [
+      {
+        "id": "73209b99-e61a-48d3-9433-7d174a08179e",
+        "name": "Bowenpally Market Agents",
+        "type": "vendor"
+      }
+    ],
+    "messages": [
+      {
+        "id": "24989512-7619-434b-a11a-5001620d2f20",
+        "user_id": "73209b99-e61a-48d3-9433-7d174a08179e",
+        "user_name": "Bowenpally Market Agents",
+        "user_type": "vendor",
+        "content": "I need 500 quintal of Onion at Rs 1900/quintal, delivery 2027-03-05 to 2027-04-30. Please respond on poll if you can contribute.",
+        "timestamp": "2026-10-04T22:10:36.348842"
+      },
+      {
+        "id": "af220c25-064a-49d6-8f77-5a464c8c9983",
+        "user_id": "73209b99-e61a-48d3-9433-7d174a08179e",
+        "user_name": "Bowenpally Market Agents",
+        "user_type": "vendor",
+        "content": "I need 200 quintal of Cabbage at Rs 1650/quintal, delivery 2027-01-20 to 2027-03-05. Please respond on poll if you can contribute.",
+        "timestamp": "2026-10-04T22:10:36.348842"
+      },
+      {
+        "id": "9dc92db9-7ec9-4f7b-9f5c-5797d57ea1c6",
+        "user_id": "73209b99-e61a-48d3-9433-7d174a08179e",
+        "user_name": "Bowenpally Market Agents",
+        "user_type": "vendor",
+        "content": "I need 150 quintal of Cauliflower at Rs 1800/quintal, delivery 2027-01-20 to 2027-03-05. Please respond on poll if you can contribute.",
+        "timestamp": "2026-10-04T22:10:36.348842"
+      },
+      {
+        "id": "5393acfa-0db4-4f0e-ae45-74649f2dbbf6",
+        "user_id": "73209b99-e61a-48d3-9433-7d174a08179e",
+        "user_name": "Bowenpally Market Agents",
+        "user_type": "vendor",
+        "content": "I need 40 quintal of Coriander (green leaf) at Rs 3000/quintal, delivery 2027-01-10 to 2027-02-28. Please respond on poll if you can contribute.",
+        "timestamp": "2026-10-04T22:10:36.348842"
+      }
+    ],
+    "created_at": "2026-10-04T22:10:36.348842",
+    "demo": true
+  },
+  {
+    "id": "5e808d6e-1c45-4059-ac9e-9b30714eebec",
+    "name": "Shankarpally Feed and Rice Mill's Community",
+    "vendor_id": "a433623e-3a2e-4f4c-99ee-aa263f0e1468",
+    "vendor_name": "Shankarpally Feed and Rice Mill",
+    "members": [
+      {
+        "id": "a433623e-3a2e-4f4c-99ee-aa263f0e1468",
+        "name": "Shankarpally Feed and Rice Mill",
+        "type": "vendor"
+      }
+    ],
+    "messages": [
+      {
+        "id": "bfdf6d8a-659b-4e13-92f2-c3cacf68101a",
+        "user_id": "a433623e-3a2e-4f4c-99ee-aa263f0e1468",
+        "user_name": "Shankarpally Feed and Rice Mill",
+        "user_type": "vendor",
+        "content": "I need 600 quintal of Rice (paddy) at Rs 2500/quintal, delivery 2027-03-20 to 2027-05-10. Please respond on poll if you can contribute.",
+        "timestamp": "2026-10-04T22:10:36.348842"
+      },
+      {
+        "id": "94f30671-e5f6-4c88-b0c0-c2a9fe6b08d2",
+        "user_id": "a433623e-3a2e-4f4c-99ee-aa263f0e1468",
+        "user_name": "Shankarpally Feed and Rice Mill",
+        "user_type": "vendor",
+        "content": "I need 500 quintal of Maize at Rs 2450/quintal, delivery 2027-03-01 to 2027-04-30. Please respond on poll if you can contribute.",
+        "timestamp": "2026-10-04T22:10:36.348842"
+      }
+    ],
+    "created_at": "2026-10-04T22:10:36.348842",
+    "demo": true
   }
 ]

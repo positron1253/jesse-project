@@ -26,5 +26,77 @@
     "latitude": 28.6139,
     "longitude": 77.209,
     "created_at": "2025-04-28T00:53:04.502109"
+  },
+  {
+    "id": "b50ab1e2-1984-468a-a8e7-d0ef39205d84",
+    "name": "Sangareddy Agro Mart",
+    "latitude": 17.6249,
+    "longitude": 78.0867,
+    "created_at": "2026-10-04T22:10:36.348842",
+    "phone": "9000000001",
+    "pin_hash": "9d05cb7b3fda089c43a90bc968653010$dfa28c959bb5b577b3cf0362ed0a98e14e36913e28bf7b888b6ecb951c763202",
+    "state": "Telangana",
+    "district": "Sangareddy",
+    "demo": true
+  },
+  {
+    "id": "7f82d771-b5b3-4f43-b612-49ece06bc40a",
+    "name": "Patancheru Fresh Traders",
+    "latitude": 17.53,
+    "longitude": 78.265,
+    "created_at": "2026-10-04T22:10:36.348842",
+    "phone": "9000000002",
+    "pin_hash": "16321b9fd8bb4a3b1ca5ba842472e100$230414f0d71200aa838b4f293c9226160832f7e88621e6daa1e93731b98ea627",
+    "state": "Telangana",
+    "district": "Sangareddy",
+    "demo": true
+  },
+  {
+    "id": "68255a53-1989-4efa-a0ab-ada13df3b24a",
+    "name": "Sadasivpet Farmers Co-op",
+    "latitude": 17.62,
+    "longitude": 77.949,
+    "created_at": "2026-10-04T22:10:36.348842",
+    "phone": "9000000003",
+    "pin_hash": "355e9fbde14a7fbcd825bfc0b8d40d13$b5ab7ef533e99fcec9b6e92fa7c3e9be9ff00f5be56818373f3962e2a657fa9a",
+    "state": "Telangana",
+    "district": "Sangareddy",
+    "demo": true
+  },
+  {
+    "id": "9eaf3260-3ddb-463f-b8ab-1fdaab6b4c5f",
+    "name": "Narsapur Oils and Pulses",
+    "latitude": 17.73,
+    "longitude": 78.28,
+    "created_at": "2026-10-04T22:10:36.348842",
+    "phone": "9000000004",
+    "pin_hash": "e675fd20060256f20dc8fd7bb3c3fd39$800dbf7f1a4de158f3994ab4c09d93b0182e11b0c9859ffc4133449ed4802df5",
+    "state": "Telangana",
+    "district": "Sangareddy",
+    "demo": true
+  },
+  {
+    "id": "73209b99-e61a-48d3-9433-7d174a08179e",
+    "name": "Bowenpally Market Agents",
+    "latitude": 17.47,
+    "longitude": 78.48,
+    "created_at": "2026-10-04T22:10:36.348842",
+    "phone": "9000000005",
+    "pin_hash": "08c6b5164acdbdc831059bd3dc47b2de$2d74ed5bebef837461e8e4f07e0839f52f48d88580e1d72b2f8ac7808876f3d5",
+    "state": "Telangana",
+    "district": "Hyderabad",
+    "demo": true
+  },
+  {
+    "id": "a433623e-3a2e-4f4c-99ee-aa263f0e1468",
+    "name": "Shankarpally Feed and Rice Mill",
+    "latitude": 17.45,
+    "longitude": 78.13,
+    "created_at": "2026-10-04T22:10:36.348842",
+    "phone": "9000000006",
+    "pin_hash": "595b4ab796f7a3a7c2ed385fbd0b4e9d$bb81073d25087b2783c5a97bc636ed1c4fcbcf11cc41e9d66459343a5fdb32a2",
+    "state": "Telangana",
+    "district": "Sangareddy",
+    "demo": true
   }
 ]
