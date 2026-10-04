@@ -12,6 +12,7 @@ Chats are stored per account in chats.json (text only, no audio files).
 import json
 import os
 import re
+import time
 import uuid
 from datetime import datetime
 from io import BytesIO
@@ -117,6 +118,12 @@ def build_context(user):
     if farm.get("acres_w") is not None:
         lines.append(f"Land: {farm.get('acres_w', 0):g} acre with water ({farm.get('water')}), "
                      f"{farm.get('acres_r', 0):g} acre rain-only. Soil pH about {farm.get('ph')}.")
+    from krishi import soilcard
+    described = soilcard.describe(farm.get("soil_card"))
+    if described:
+        lines.append("Soil test values (ratings are approximate): " + described + ".")
+    if farm.get("soil"):
+        lines.append(f"Soil type: {farm['soil']}.")
     clim = farm.get("climate")
     if clim and farm.get("season"):
         lines.append(f"Local climate for {farm['season']} season: about {clim.get('temperature')} C average, "
@@ -217,8 +224,12 @@ def translate(text, target, source="auto", chunk_size=1500, timeout=20):
         return text
 
     def one(chunk):
-        r = requests.get("https://translate.googleapis.com/translate_a/single",
-                         params={"client": "gtx", "sl": source, "tl": target, "dt": "t", "q": chunk}, timeout=timeout)
+        for attempt in range(3):  # the free endpoint rate-limits (HTTP 429); back off briefly
+            r = requests.get("https://translate.googleapis.com/translate_a/single",
+                             params={"client": "gtx", "sl": source, "tl": target, "dt": "t", "q": chunk}, timeout=timeout)
+            if r.status_code != 429:
+                break
+            time.sleep(1.5 * (attempt + 1))
         r.raise_for_status()
         return "".join(p[0] for p in r.json()[0] if p[0])
 
@@ -276,11 +287,21 @@ def answer(history, question_en, context, api_key):
 
 
 def respond(user, history, question_native, question_en, lang_code, api_key):
-    """Run model + translation + voice. Returns (reply_native, reply_en, audio_bytes_or_None)."""
+    """Run model + translation + voice. Returns (reply_native, reply_en, audio_bytes_or_None, reply_lang).
+
+    If translation is unavailable (rate-limited), the reply comes back in English with English voice, reply_lang='en'.
+    """
     reply_en = answer(history, question_en, build_context(user), api_key)
-    reply_native = reply_en if lang_code == "en" else translate(reply_en, lang_code, "en")
+    reply_lang = lang_code
+    if lang_code == "en":
+        reply_native = reply_en
+    else:
+        try:
+            reply_native = translate(reply_en, lang_code, "en")
+        except Exception:
+            reply_native, reply_lang = reply_en, "en"
     try:
-        audio = speak(reply_native, lang_code)
+        audio = speak(reply_native, reply_lang)
     except Exception:
         audio = None
-    return reply_native, reply_en, audio
+    return reply_native, reply_en, audio, reply_lang

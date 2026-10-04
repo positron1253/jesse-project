@@ -12,6 +12,7 @@ from io import BytesIO
 import streamlit as st
 
 from krishi import crop_model as cm
+from krishi import location_ui, soilcard
 from krishi import water as water_mod
 from krishi import pump as pump_mod
 from krishi import crop_table, geo, live_prices, plans
@@ -82,34 +83,8 @@ def _dots(n):
 
 # ---------- screen 1 ----------
 def _place_picker(user):
-    farm = _farm()
-    if "lat" not in farm:
-        farm.update(lat=user.get("latitude"), lon=user.get("longitude"))
-        loc = _locate(round(farm["lat"], 3), round(farm["lon"], 3)) if farm["lat"] else None
-        farm.update(state=(loc or {}).get("state"), district=(loc or {}).get("district"),
-                    place=(loc or {}).get("place"))
-
-    label = ", ".join(x for x in [farm.get("place"), farm.get("district"), farm.get("state")] if x)
-    st.markdown(f"**{t('p1.place')}:** 📍 {label or t('loc.saved')}")
-    with st.expander(t("p1.change_place")):
-        q = st.text_input(t("loc.search"), placeholder=t("loc.search_ph"), key="plan_place_q")
-        results = geo.search_places(q) if q else []
-        if results:
-            pick = st.selectbox(t("loc.pick"), range(len(results)), format_func=lambda i: results[i]["label"],
-                                key="plan_place_pick")
-            if st.button("✔", key="plan_place_ok"):
-                r = results[pick]
-                farm.update(lat=r["lat"], lon=r["lon"], state=r["state"], district=r["district"],
-                            place=r["label"].split(",")[0])
-                st.rerun()
-        st.caption(t("loc.state") + " / " + t("loc.district"))
-        c1, c2 = st.columns(2)
-        farm["state"] = c1.text_input(t("loc.state"), value=farm.get("state") or "", key="plan_state") or farm.get("state")
-        farm["district"] = c2.text_input(t("loc.district"), value=farm.get("district") or "", key="plan_district") or farm.get("district")
-    problems = wx.check_coordinates(farm.get("lat"), farm.get("lon"))
-    for p in problems:
-        st.error(f"📍 {p}")
-    return not problems
+    """GPS auto-fill + editable coordinates (shared component). Everything downstream reads st.session_state['farm']."""
+    return location_ui.render_location(user)
 
 
 def screen_farm(user):
@@ -137,10 +112,29 @@ def screen_farm(user):
     soil = st.selectbox(t("p1.soil"), [None] + soils, format_func=lambda s: t("soil.unknown") if s is None else s,
                         key="plan_soil")
     ph = cm.SOIL_TYPES[soil]["ph"] if soil else 6.8
-    with st.expander(t("p1.card")):
+    card = farm.setdefault("soil_card", {})
+    entered = any(not isinstance(v, str) and v for v in card.values())
+    st.caption("🧪 " + t("p1.card_where"))
+    with st.expander("🧪 " + t("p1.card"), expanded=entered):
         st.caption(t("p1.card_help"))
         ph = st.number_input("pH", min_value=3.0, max_value=10.5, step=0.1, value=float(ph), format="%.1f",
                              key="plan_ph")
+        n1, n2, n3 = st.columns(3)
+        for col, nutrient, label_key in ((n1, "N", "p1.n"), (n2, "P", "p1.p"), (n3, "K", "p1.k")):
+            prev = card.get(nutrient)
+            prev = 0.0 if prev is None or isinstance(prev, str) else float(prev)
+            v = col.number_input(t(label_key), min_value=0.0, max_value=2000.0, value=prev, step=1.0, key=f"plan_card_{nutrient}")
+            card[nutrient] = v
+            r = soilcard.rate(nutrient, v)
+            col.caption(t(f"p1.rating_{r}") if r else t("p1.not_entered"))
+        prev = card.get("OC")
+        prev = 0.0 if prev is None or isinstance(prev, str) else float(prev)
+        oc = st.number_input(t("p1.oc"), min_value=0.0, max_value=6.0, value=prev, step=0.01, format="%.2f", key="plan_card_OC")
+        card["OC"] = oc
+        r = soilcard.rate("OC", oc)
+        st.caption(t(f"p1.rating_{r}") if r else t("p1.not_entered"))
+        st.caption(t("p1.card_note"))
+        st.caption(t("p1.card_get"))
     farm["ph"] = ph
     farm["soil"] = soil
 
@@ -533,13 +527,15 @@ def screen_plan(user, respond_fn):
         with st.spinner(t("guide.wait")):
             try:
                 result = {"inputs": {"temperature": farm["climate"]["temperature"], "humidity": farm["climate"]["humidity"],
-                                     "rainfall": farm["climate"]["rainfall"], "ph": farm["ph"], "N": "-", "P": "-", "K": "-"},
+                                     "rainfall": farm["climate"]["rainfall"], "ph": farm["ph"], "card": farm.get("soil_card") or {}},
                           "season": SEASON_LABEL[farm["season"]], "lat": farm["lat"], "lon": farm["lon"]}
                 label = crop_table.crop_names(crop_pick)["en"]
                 cache[key] = _build_guide(label, result, glang, _together_key())
             except Exception as e:
                 st.error(str(e))
     g = cache.get(key)
+    if g and g.get("translated") is False:
+        st.warning(t("guide.untranslated"))
     if g:
         if g.get("audio"):
             st.audio(g["audio"], format=_assistant.audio_mime(g["audio"]))

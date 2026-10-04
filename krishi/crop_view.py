@@ -252,6 +252,16 @@ def render(user, together_api_key):
                     st.write(guide["english"])
 
 
+def _card_text(inp):
+    """Soil test values the farmer entered, as a short phrase for the guide prompt ('' if none)."""
+    from krishi import soilcard
+    d = soilcard.describe(inp.get("card"))
+    if not d:
+        return ""
+    return (", soil test values: " + d + ". Tailor the fertilizer advice to these values, but give no exact doses of "
+            "chemicals; tell the farmer to get a soil-test based dose from the local KVK")
+
+
 def _build_guide(crop_label, result, language, api_key):
     from together import Together
 
@@ -261,7 +271,7 @@ def _build_guide(crop_label, result, language, api_key):
         f"Give a practical guide to grow {crop_label} in the {result['season']} season at latitude "
         f"{result['lat']:.2f}, longitude {result['lon']:.2f} in India. Local conditions: average temperature "
         f"{inp['temperature']} C, humidity {inp['humidity']}%, about {inp['rainfall']} mm rain per month, "
-        f"soil pH {inp['ph']}, soil N {inp['N']}, P {inp['P']}, K {inp['K']} (kg/ha). "
+        f"soil pH {inp['ph']}{_card_text(inp)}. "
         "Cover, with short numbered points: 1) land preparation, 2) best sowing time, seed rate and spacing, "
         "3) fertilizer schedule for this soil, 4) irrigation: when and how much water at each crop stage, "
         "critical stages not to miss, and water-saving methods like drip or mulching, 5) main pests and diseases "
@@ -288,14 +298,22 @@ def _build_guide(crop_label, result, language, api_key):
     english = "".join(c.message.content for c in response.choices).replace("*", "").replace("#", "").strip()
 
     lang_code = LANGUAGES[language]
-    text = english if lang_code == "en" else _translate(english, lang_code)
+    translated = True
+    if lang_code == "en":
+        text = english
+    else:
+        try:
+            text = _translate(english, lang_code)
+        except Exception:
+            text, lang_code, translated = english, "en", False   # translation busy: English text and voice instead
 
     try:
         audio = _assistant.speak(text, lang_code)
     except Exception:
         audio = None
 
-    return {"crop": crop_label, "language": language, "text": text, "english": english, "audio": audio}
+    return {"crop": crop_label, "language": language, "text": text, "english": english, "audio": audio,
+            "translated": translated}
 
 
 def _translate(text, lang_code, chunk_size=1500):
@@ -307,11 +325,16 @@ def _translate(text, lang_code, chunk_size=1500):
     import requests
 
     def translate_chunk(chunk):
-        r = requests.get(
-            "https://translate.googleapis.com/translate_a/single",
-            params={"client": "gtx", "sl": "en", "tl": lang_code, "dt": "t", "q": chunk},
-            timeout=20,
-        )
+        import time
+        for attempt in range(3):  # free endpoint rate-limits (HTTP 429)
+            r = requests.get(
+                "https://translate.googleapis.com/translate_a/single",
+                params={"client": "gtx", "sl": "en", "tl": lang_code, "dt": "t", "q": chunk},
+                timeout=20,
+            )
+            if r.status_code != 429:
+                break
+            time.sleep(1.5 * (attempt + 1))
         r.raise_for_status()
         return "".join(part[0] for part in r.json()[0] if part[0])
 

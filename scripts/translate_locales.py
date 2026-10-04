@@ -25,11 +25,15 @@ def translate(text, lang):
     protected = text
     for i, n in enumerate(names):
         protected = protected.replace("{" + n + "}", f"[[{i}]]", 1)
-    r = requests.get(
-        "https://translate.googleapis.com/translate_a/single",
-        params={"client": "gtx", "sl": "en", "tl": lang, "dt": "t", "q": protected},
-        timeout=20,
-    )
+    for attempt in range(6):  # the free endpoint rate-limits (HTTP 429); back off and retry
+        r = requests.get(
+            "https://translate.googleapis.com/translate_a/single",
+            params={"client": "gtx", "sl": "en", "tl": lang, "dt": "t", "q": protected},
+            timeout=20,
+        )
+        if r.status_code != 429:
+            break
+        time.sleep(3 * (attempt + 1))
     r.raise_for_status()
     out = "".join(p[0] for p in r.json()[0] if p[0])
     for i, n in enumerate(names):

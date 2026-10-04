@@ -37,13 +37,18 @@ def _turn(user, api_key, lang_code, text=None, audio=None):
                 st.warning(t("ask.empty"))
                 return False
             text = text.strip()
-            q_en = text if lang_code == "en" else assistant.translate(text, "en", lang_code)
-            reply, reply_en, audio_out = assistant.respond(user, history, text, q_en, lang_code, api_key)
+            try:
+                q_en = text if lang_code == "en" else assistant.translate(text, "en", lang_code)
+            except Exception:
+                q_en = text  # the model can read Hindi/Marathi directly if translation is busy
+            reply, reply_en, audio_out, reply_lang = assistant.respond(user, history, text, q_en, lang_code, api_key)
+            if reply_lang != lang_code:
+                st.session_state["ask_notice"] = "ask.untranslated"
     except Exception:
         st.error(t("ask.error"))
         return False
 
-    new = [assistant.make_msg("user", text, q_en, lang_code), assistant.make_msg("assistant", reply, reply_en, lang_code)]
+    new = [assistant.make_msg("user", text, q_en, lang_code), assistant.make_msg("assistant", reply, reply_en, reply_lang)]
     assistant.append_messages(user["id"], new)
     history.extend(new)
     if audio_out:
@@ -69,6 +74,9 @@ def render(user, api_key):
 
     history = _history(user)
     autoplay = st.session_state.pop("ask_autoplay", None)
+    notice = st.session_state.pop("ask_notice", None)
+    if notice:
+        st.warning(t(notice))
 
     # --- conversation ---
     box = st.container()

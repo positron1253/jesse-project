@@ -3,7 +3,7 @@
 import pandas as pd
 import streamlit as st
 
-from krishi import village, water
+from krishi import location_ui, village, water
 from krishi.i18n import current_lang, inr, rupees, t
 from krishi.crop_table import crop_names
 from krishi.plan_view import SEASON_LABEL, current_season
@@ -30,6 +30,7 @@ def render(user):
     st.subheader(t("village.title"))
     st.caption(t("village.sub"))
 
+    location_ui.render_location(user)
     farm = st.session_state.get("farm") or {}
     lat = farm.get("lat") or user.get("latitude")
     lon = farm.get("lon") or user.get("longitude")

@@ -7,7 +7,7 @@ import pandas as pd
 import streamlit as st
 
 from krishi import crop_model as cm
-from krishi import crop_table, energylog, water
+from krishi import crop_table, energylog, location_ui, water
 from krishi import pump as pump_mod
 from krishi.i18n import current_lang, inr, rupees, t
 from krishi.plan_view import SEASON_LABEL, current_season
@@ -42,6 +42,7 @@ def _forecast(lat, lon):
 
 def _inputs(user):
     """Shared selector block. Returns a dict, or None if the farm location is missing."""
+    location_ui.render_location(user)
     farm = st.session_state.get("farm") or {}
     lat = farm.get("lat") or user.get("latitude")
     lon = farm.get("lon") or user.get("longitude")
