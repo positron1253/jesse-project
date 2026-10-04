@@ -1,0 +1,30 @@
+[
+  {
+    "id": "8beea4d9-74f7-42b4-a8ce-e95dbacabbff",
+    "name": "sakshi",
+    "latitude": 28.6139,
+    "longitude": 77.209,
+    "created_at": "2025-03-25T02:43:02.639014"
+  },
+  {
+    "id": "b6e4efed-e732-4493-9019-a51d9c22edb8",
+    "name": "nilanjan",
+    "latitude": 28.6139,
+    "longitude": 2.209,
+    "created_at": "2025-03-25T02:43:44.356078"
+  },
+  {
+    "id": "ba90ba82-1946-4d9a-be5b-bb68178f3e98",
+    "name": "ioio",
+    "latitude": 28.6139,
+    "longitude": 77.209,
+    "created_at": "2025-03-25T13:25:09.714847"
+  },
+  {
+    "id": "ab6beb79-50bd-439b-8586-02c161b9951e",
+    "name": "hiren",
+    "latitude": 28.6139,
+    "longitude": 77.209,
+    "created_at": "2025-04-28T00:53:04.502109"
+  }
+]

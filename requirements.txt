@@ -1,0 +1,8 @@
+streamlit>=1.41
+streamlit-js-eval
+pandas
+requests
+plotly
+gTTS
+together
+scikit-learn

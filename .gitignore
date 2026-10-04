@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.claude/
+krishi-sahay-project.zip
+translated_audio.mp3
+# local secrets and per-user runtime data
+.streamlit/secrets.toml
+chats.json
+plans.json

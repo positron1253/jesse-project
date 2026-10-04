@@ -1,0 +1,193 @@
+[
+  {
+    "id": "8114a64d-9eb4-4bf2-9dd5-3ecaac8360b5",
+    "name": "sakshi's Community",
+    "vendor_id": "8beea4d9-74f7-42b4-a8ce-e95dbacabbff",
+    "vendor_name": "sakshi",
+    "members": [
+      {
+        "id": "8beea4d9-74f7-42b4-a8ce-e95dbacabbff",
+        "name": "sakshi",
+        "type": "vendor"
+      },
+      {
+        "id": "98296b73-d719-4502-aaed-f4f8304b5b80",
+        "name": "prateek",
+        "type": "farmer",
+        "distance": 0.0
+      },
+      {
+        "id": "8539e25b-26a9-46f3-9aa0-b2ef653707c5",
+        "name": "hiren",
+        "type": "farmer",
+        "distance": 0.0
+      },
+      {
+        "id": "43d29534-fbc8-4b77-9afd-f08d50d93678",
+        "name": "hiren",
+        "type": "farmer",
+        "distance": 0.0
+      },
+      {
+        "id": "5b650b5c-0f0e-4943-8f6b-efd51adb9295",
+        "name": "hiren",
+        "type": "farmer",
+        "distance": 0.0
+      },
+      {
+        "id": "a1bfe2bc-1d12-4075-91cb-54d5734bcbf2",
+        "name": "hiren",
+        "type": "farmer",
+        "distance": 0.0
+      }
+    ],
+    "messages": [
+      {
+        "id": "2a779c06-62d3-4c96-b431-56a5d65bc8bc",
+        "user_id": "8beea4d9-74f7-42b4-a8ce-e95dbacabbff",
+        "user_name": "sakshi",
+        "user_type": "vendor",
+        "content": "I need 1 kg of drt by 2025-06-10. Please respond on poll if you can contribute.",
+        "timestamp": "2025-06-10T11:49:26.236341"
+      },
+      {
+        "id": "5eac227d-d78f-42f2-a0f1-9ba7f49675d0",
+        "user_id": "8beea4d9-74f7-42b4-a8ce-e95dbacabbff",
+        "user_name": "sakshi",
+        "user_type": "vendor",
+        "content": "\u2705 Requirement for 1 kg of drt has been met. Thank you to all farmers who contributed!",
+        "timestamp": "2025-06-10T11:50:00.961530"
+      }
+    ],
+    "created_at": "2025-03-25T02:43:02.641193"
+  },
+  {
+    "id": "939e0454-d62f-407b-8920-f404b7207cad",
+    "name": "nilanjan's Community",
+    "vendor_id": "b6e4efed-e732-4493-9019-a51d9c22edb8",
+    "vendor_name": "nilanjan",
+    "members": [
+      {
+        "id": "b6e4efed-e732-4493-9019-a51d9c22edb8",
+        "name": "nilanjan",
+        "type": "vendor"
+      },
+      {
+        "id": "396e428b-b47b-4882-942f-f78e0c1d3ef8",
+        "name": "ritika",
+        "type": "farmer",
+        "distance": 0.0
+      }
+    ],
+    "messages": [
+      {
+        "id": "e9631137-3ef8-401f-b12a-c0c44aa28283",
+        "user_id": "b6e4efed-e732-4493-9019-a51d9c22edb8",
+        "user_name": "nilanjan",
+        "user_type": "vendor",
+        "content": "I need 400 kg of onions by 2025-03-25. Please respond on poll if you can contribute.",
+        "timestamp": "2025-03-25T02:45:03.574615"
+      }
+    ],
+    "created_at": "2025-03-25T02:43:44.357439"
+  },
+  {
+    "id": "8670d1fb-1df0-4540-8e61-66c59e7c6125",
+    "name": "ioio's Community",
+    "vendor_id": "ba90ba82-1946-4d9a-be5b-bb68178f3e98",
+    "vendor_name": "ioio",
+    "members": [
+      {
+        "id": "ba90ba82-1946-4d9a-be5b-bb68178f3e98",
+        "name": "ioio",
+        "type": "vendor"
+      },
+      {
+        "id": "98296b73-d719-4502-aaed-f4f8304b5b80",
+        "name": "prateek",
+        "type": "farmer",
+        "distance": 0.0
+      },
+      {
+        "id": "8539e25b-26a9-46f3-9aa0-b2ef653707c5",
+        "name": "hiren",
+        "type": "farmer",
+        "distance": 0.0
+      },
+      {
+        "id": "43d29534-fbc8-4b77-9afd-f08d50d93678",
+        "name": "hiren",
+        "type": "farmer",
+        "distance": 0.0
+      },
+      {
+        "id": "5b650b5c-0f0e-4943-8f6b-efd51adb9295",
+        "name": "hiren",
+        "type": "farmer",
+        "distance": 0.0
+      },
+      {
+        "id": "a1bfe2bc-1d12-4075-91cb-54d5734bcbf2",
+        "name": "hiren",
+        "type": "farmer",
+        "distance": 0.0
+      }
+    ],
+    "messages": [
+      {
+        "id": "f6825ee7-0ac4-412b-8c56-b0d8998dc260",
+        "user_id": "ba90ba82-1946-4d9a-be5b-bb68178f3e98",
+        "user_name": "ioio",
+        "user_type": "vendor",
+        "content": "I need 4000 kg of onions by 2025-03-25. Please respond on poll if you can contribute.",
+        "timestamp": "2025-03-25T13:25:29.899948"
+      }
+    ],
+    "created_at": "2025-03-25T13:25:09.714847"
+  },
+  {
+    "id": "14486158-28a8-4b8d-b3e0-24c67fd1cc22",
+    "name": "hiren's Community",
+    "vendor_id": "ab6beb79-50bd-439b-8586-02c161b9951e",
+    "vendor_name": "hiren",
+    "members": [
+      {
+        "id": "ab6beb79-50bd-439b-8586-02c161b9951e",
+        "name": "hiren",
+        "type": "vendor"
+      },
+      {
+        "id": "98296b73-d719-4502-aaed-f4f8304b5b80",
+        "name": "prateek",
+        "type": "farmer",
+        "distance": 0.0
+      },
+      {
+        "id": "8539e25b-26a9-46f3-9aa0-b2ef653707c5",
+        "name": "hiren",
+        "type": "farmer",
+        "distance": 0.0
+      },
+      {
+        "id": "43d29534-fbc8-4b77-9afd-f08d50d93678",
+        "name": "hiren",
+        "type": "farmer",
+        "distance": 0.0
+      },
+      {
+        "id": "5b650b5c-0f0e-4943-8f6b-efd51adb9295",
+        "name": "hiren",
+        "type": "farmer",
+        "distance": 0.0
+      },
+      {
+        "id": "a1bfe2bc-1d12-4075-91cb-54d5734bcbf2",
+        "name": "hiren",
+        "type": "farmer",
+        "distance": 0.0
+      }
+    ],
+    "messages": [],
+    "created_at": "2025-04-28T00:53:04.503114"
+  }
+]

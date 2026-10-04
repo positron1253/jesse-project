@@ -1,0 +1,40 @@
+[
+  {
+    "id": "9ee5dc62-3cba-4433-9384-6314e37bd4e0",
+    "user_id": "sample_user",
+    "user_name": "Agricultural Expert",
+    "user_type": "vendor",
+    "title": "Soil Preparation for Wheat",
+    "content": "Wheat requires well-drained soil with a pH between 6.0 and 7.0. Before planting, prepare your soil by tilling to a depth of 15cm and incorporate organic matter. Conduct a soil test to ensure proper nutrient levels.",
+    "category": "Soil Management",
+    "likes": 0,
+    "liked_by": [],
+    "timestamp": "2025-03-25T02:41:03.561906"
+  },
+  {
+    "id": "86a90e5d-af14-4c2c-95be-3e3c1ad568e2",
+    "user_id": "sample_user",
+    "user_name": "Agricultural Expert",
+    "user_type": "vendor",
+    "title": "Effective Water Conservation Techniques",
+    "content": "Implement drip irrigation to save water. Mulching can reduce evaporation by up to 70%. Consider collecting rainwater during monsoon season for use during dry periods.",
+    "category": "Water Management",
+    "likes": 1,
+    "liked_by": [
+      "98296b73-d719-4502-aaed-f4f8304b5b80"
+    ],
+    "timestamp": "2025-03-25T02:41:03.567352"
+  },
+  {
+    "id": "5755d924-a43a-4e0d-8770-ce6eef2d35be",
+    "user_id": "sample_user",
+    "user_name": "Agricultural Expert",
+    "user_type": "vendor",
+    "title": "Integrated Pest Management for Rice",
+    "content": "Monitor your rice fields regularly for pests. Introduce beneficial insects like ladybugs to control aphids. Rotate crops annually to break pest cycles. Apply neem-based solutions as a natural pesticide.",
+    "category": "Pest Control",
+    "likes": 0,
+    "liked_by": [],
+    "timestamp": "2025-03-25T02:41:03.575222"
+  }
+]

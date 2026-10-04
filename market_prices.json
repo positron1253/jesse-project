@@ -1,0 +1,57 @@
+[
+  {
+    "id": "6c8f8235-e95c-43ed-89a5-e7ef429b3751",
+    "vendor_id": "sample_vendor",
+    "vendor_name": "Sample Vendor",
+    "product": "Tomatoes",
+    "price": 25.5,
+    "unit": "kg",
+    "location": "Delhi",
+    "notes": "Sample data for demonstration",
+    "timestamp": "2025-03-25T02:41:03.537038"
+  },
+  {
+    "id": "b42f1808-d456-45d8-ba7b-bd357aeb2dfd",
+    "vendor_id": "sample_vendor",
+    "vendor_name": "Sample Vendor",
+    "product": "Potatoes",
+    "price": 15.75,
+    "unit": "kg",
+    "location": "Mumbai",
+    "notes": "Sample data for demonstration",
+    "timestamp": "2025-03-25T02:41:03.543347"
+  },
+  {
+    "id": "e55cd830-3237-427c-b9d7-546b43f8c9ce",
+    "vendor_id": "sample_vendor",
+    "vendor_name": "Sample Vendor",
+    "product": "Rice",
+    "price": 45.0,
+    "unit": "kg",
+    "location": "Kolkata",
+    "notes": "Sample data for demonstration",
+    "timestamp": "2025-03-25T02:41:03.548177"
+  },
+  {
+    "id": "a8672e43-9701-4815-8f57-41e6c931ccc7",
+    "vendor_id": "sample_vendor",
+    "vendor_name": "Sample Vendor",
+    "product": "Wheat",
+    "price": 30.25,
+    "unit": "kg",
+    "location": "Chennai",
+    "notes": "Sample data for demonstration",
+    "timestamp": "2025-03-25T02:41:03.553560"
+  },
+  {
+    "id": "6bffb832-9b99-4760-ab17-9bb2ace4a077",
+    "vendor_id": "sample_vendor",
+    "vendor_name": "Sample Vendor",
+    "product": "Onions",
+    "price": 20.0,
+    "unit": "kg",
+    "location": "Bangalore",
+    "notes": "Sample data for demonstration",
+    "timestamp": "2025-03-25T02:41:03.560905"
+  }
+]
