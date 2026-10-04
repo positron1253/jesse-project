@@ -76,6 +76,8 @@ def save_plan(farmer_id, lat, lon, season, plan, meta=None):
             "plot": r.plot, "crop_id": r.crop_id, "acres": r.acres,
             "yield_q_lo": r.yield_q[0], "yield_q_hi": r.yield_q[1], "created_at": now,
             "water": (meta or {}).get("water"), "soil": (meta or {}).get("soil"), "state": (meta or {}).get("state"),
+            "taw": (meta or {}).get("taw"), "sow_date": (meta or {}).get("sow_date"),
+            "place": (meta or {}).get("lat_label"),
         })
     _save(PLANS_FILE, plans)
 
@@ -136,3 +138,26 @@ def supply_coming(lat, lon, season=None, km=50):
         o["q_hi"] += p.get("yield_q_hi", 0)
     return [{"season": s, "crop_id": c, "farms": len(v["farms"]), "acres": v["acres"],
              "q_lo": round(v["q_lo"]), "q_hi": round(v["q_hi"])} for (s, c), v in sorted(out.items())]
+
+
+def farmer_rows(farmer_id):
+    """Every saved plan row of this farmer (all seasons), newest sowing first."""
+    rows = [p for p in _load(PLANS_FILE) if p["farmer_id"] == farmer_id]
+    return sorted(rows, key=lambda p: (p.get("sow_date") or p.get("created_at") or ""), reverse=True)
+
+
+def update_row(row_id, **fields):
+    rows = _load(PLANS_FILE)
+    for p in rows:
+        if p["id"] == row_id:
+            p.update(fields)
+            _save(PLANS_FILE, rows)
+            return True
+    return False
+
+
+def delete_row(row_id, farmer_id):
+    rows = _load(PLANS_FILE)
+    kept = [p for p in rows if not (p["id"] == row_id and p["farmer_id"] == farmer_id)]
+    _save(PLANS_FILE, kept)
+    return len(kept) != len(rows)

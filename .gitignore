@@ -8,3 +8,6 @@ translated_audio.mp3
 chats.json
 plans.json
 energy_log.json
+cache/
+farm_profiles.json
+irrigation_events.json

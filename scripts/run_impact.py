@@ -166,10 +166,17 @@ def main():
           f"{fmt(r['flood_m3'])} ({r['flood_saved_pct']:+.0f}%, {r['flood_saved_p10']:+.0f} to {r['flood_saved_p90']:+.0f}) | {r['flood_yield']:.2f} | "
           f"{fmt(r['eff_m3'])} ({r['eff_saved_pct']:+.0f}%, {r['eff_saved_p10']:+.0f} to {r['eff_saved_p90']:+.0f}) | {r['eff_yield']:.2f} | "
           f"{fmt(r['eff_saved_kwh'])} | {fmt(r['eff_saved_co2_kg'])} |")
-    w("\n**Reading it honestly**")
-    w("- Where the baseline already waters enough (cotton, tomato, wheat with drip), scheduling and an efficient method cut water at equal yield.")
-    w("- Where the usual practice is a deliberate shortcut (chana and mustard get about 2 irrigations and reach roughly 63–66% of full yield), the "
-      "scheduler uses **more** water and lifts yield. That is a yield gain, not a water saving. Negative \"saved\" figures above mean extra water.\n")
+    w("\n**Reading it honestly** (generated from the table above)")
+    savers = [r for r in res["s1"] if r["eff_saved_pct"] > 0 and r["yield_change_eff_pct"] >= -1]
+    extra = [r for r in res["s1"] if r["eff_saved_pct"] <= 0]
+    if savers:
+        w("- Water saved at equal or better yield (scheduling plus an efficient method): " + "; ".join(
+            f"**{r['crop']}** {r['eff_saved_pct']:.0f}% less water ({r['flood_saved_pct']:+.0f}% with scheduling alone), yield {r['yield_change_eff_pct']:+.0f}% relative" for r in savers) + ".")
+    if extra:
+        w("- Crops where the usual practice leaves the crop short of water, so the schedule uses MORE water to protect yield: " + "; ".join(
+            f"**{r['crop']}** (water {-r['eff_saved_pct']:.0f}% more, yield {r['yield_change_eff_pct']:+.0f}% relative)" for r in extra) +
+          ". That is a yield gain, not a water saving; a negative saved figure above means extra water.")
+    w("- Each single watering is capped at 60 mm net (what a farmer can realistically apply), so deep-soil crops get more, smaller waterings.\n")
 
     w("## 3. Sensitivity of the energy result to pump assumptions (cotton, Kharif, levers 1+2, per acre)\n")
     w("| Pump efficiency | Lift 30 m | Lift 40 m | Lift 60 m |\n|---|---|---|---|")

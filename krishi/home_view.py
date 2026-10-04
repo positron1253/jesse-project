@@ -5,8 +5,9 @@ import streamlit as st
 from krishi.i18n import UI_LANGUAGES, current_lang, set_lang, t
 
 FARMER_TILES = [
-    ("home.t_plan", "crop_prediction"), ("home.t_water", "water_energy"),
-    ("home.t_ask", "assistant"), ("home.t_deals", "supply_commitments"),
+    ("home.t_plan", "crop_prediction"), ("home.t_myfarm", "my_farm"),
+    ("home.t_water", "water_energy"), ("home.t_ask", "assistant"),
+    ("home.t_sell", "sell"), ("home.t_deals", "supply_commitments"),
     ("home.t_village", "village"), ("home.t_prices", "market_prices"),
     ("home.t_group", "communities"), ("home.t_tips", "farming_tips"),
 ]
@@ -37,3 +38,21 @@ def render(user, user_type):
                     st.session_state.view = view
                     st.session_state.chat_community = None
                     st.rerun()
+    refresh_button()
+
+
+def refresh_button():
+    """Drop every saved copy of weather, soil, prices and results so the next screen fetches fresh data."""
+    if st.button("🔄 " + t("home.refresh"), key="home_refresh"):
+        from krishi import crop_table, live_prices, water
+        st.cache_data.clear()
+        water.fetch_history.cache_clear()
+        live_prices._RANGE_CACHE.clear()
+        crop_table.PRICE_OVERRIDES.clear()
+        try:
+            from krishi import recommender
+            recommender._profile.cache_clear()
+        except Exception:
+            pass
+        st.success(t("home.refreshed"))
+        st.caption(t("home.refresh_help"))

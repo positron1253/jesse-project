@@ -35,7 +35,43 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 ARCHIVE = "https://archive-api.open-meteo.com/v1/archive"
 FORECAST = "https://api.open-meteo.com/v1/forecast"
 
-SEASON_START = {"Kharif": (7, 1), "Rabi": (11, 1), "Zaid": (3, 1)}
+SEASON_START = {"Kharif": (7, 1), "Rabi": (11, 1), "Zaid": (3, 1)}   # typical sowing start; only a default, the farmer chooses
+
+
+def season_of(day):
+    """Season a sowing date belongs to: Kharif May-Sep, Rabi Oct-Jan, Zaid Feb-Apr."""
+    m = day.month
+    return "Kharif" if 5 <= m <= 9 else "Rabi" if (m >= 10 or m == 1) else "Zaid"
+
+
+def default_sowing_date(today=None):
+    """Next typical sowing start for the current season, or today if that start has already passed."""
+    today = today or date.today()
+    season = season_of(today)
+    m, d = SEASON_START[season]
+    start = date(today.year, m, d)
+    if season == "Rabi" and today.month == 1:
+        start = date(today.year - 1, m, d)
+    return start if start >= today else today
+
+
+def sow_md(season, sow=None):
+    """(month, day) the simulations start from: the farmer's own date if given, else the season's typical start."""
+    if sow:
+        return (sow.month, sow.day) if hasattr(sow, "month") else tuple(sow)
+    return SEASON_START[season]
+
+
+def window_temp(hist, m, d, duration):
+    """Median over past years of the mean temperature during the crop's own window (sowing to harvest)."""
+    vals = []
+    for y in range(hist["dates"][0].year, hist["dates"][-1].year):
+        i0 = hist["index"].get(date(y, m, d))
+        if i0 is None or i0 + duration >= len(hist["dates"]):
+            continue
+        w = hist["tmean"][i0:i0 + duration]
+        vals.append(sum(w) / len(w))
+    return _pct(vals, 0.5) if vals else None
 STAGE_SPLIT = (0.20, 0.25, 0.30, 0.25)          # initial, development, mid, late
 EFFECTIVE_RAIN = 0.85
 INITIAL_DEPLETION = 0.10
@@ -50,6 +86,7 @@ SOIL_OF_TYPE = {
 }
 
 # Practice parameters (assumptions)
+MAX_NET_IRRIGATION_MM = 60      # assumption: deepest single watering a farmer can really apply (net mm reaching the soil)
 FLOOD_EFFICIENCY = 0.60
 BASELINE_INTERVAL_DAYS = 12
 BASELINE_DEPTH_MM = 70          # gross water per flood irrigation
@@ -62,20 +99,56 @@ def crop_water_table():
 
 
 # ---------------------------------------------------------------- weather history
+CACHE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "cache")
+HISTORY_GRID_DEG = 0.1      # ERA5 is a ~0.25 degree grid, so nearby farms can share one downloaded history
+
+
+def _history_from_arrays(dates, et0, rain, tmax, tmean):
+    return {"dates": dates, "et0": et0, "rain": rain, "tmax": tmax, "tmean": tmean,
+            "index": {x: i for i, x in enumerate(dates)}}
+
+
 @lru_cache(maxsize=32)
-def fetch_history(lat, lon, first_year=1995, last_year=None, timeout=45):
-    """Daily ET0, rain, Tmax from ERA5 for first_year..last_year (rounded coordinates, cached)."""
-    last_year = last_year or date.today().year - 1
+def _history_cached(lat, lon, first_year, last_year, timeout):
+    """Daily ET0, rain, Tmax, Tmean from ERA5 (Open-Meteo archive). Kept on disk, so each ~10 km cell is downloaded once."""
+    import gzip
+    import json
+    path = os.path.join(CACHE_DIR, f"hist_{lat:.1f}_{lon:.1f}_{first_year}_{last_year}.json.gz")
+    if os.path.exists(path):
+        try:
+            with gzip.open(path, "rt", encoding="utf-8") as f:
+                d = json.load(f)
+            return _history_from_arrays([date.fromisoformat(x) for x in d["t"]], d["et0"], d["rain"], d["tmax"], d["tmean"])
+        except Exception:
+            pass                                    # unreadable cache file: fetch again
     r = requests.get(ARCHIVE, params={
         "latitude": lat, "longitude": lon, "start_date": f"{first_year}-01-01", "end_date": f"{last_year}-12-31",
-        "daily": "et0_fao_evapotranspiration,precipitation_sum,temperature_2m_max", "timezone": "auto"}, timeout=timeout)
+        "daily": "et0_fao_evapotranspiration,precipitation_sum,temperature_2m_max,temperature_2m_mean", "timezone": "auto"},
+        timeout=timeout)
     r.raise_for_status()
     d = r.json()["daily"]
     et0 = [v if v is not None else 0.0 for v in d["et0_fao_evapotranspiration"]]
     rain = [v if v is not None else 0.0 for v in d["precipitation_sum"]]
     tmax = [v if v is not None else 30.0 for v in d["temperature_2m_max"]]
-    dates = [date.fromisoformat(x) for x in d["time"]]
-    return {"dates": dates, "et0": et0, "rain": rain, "tmax": tmax, "index": {x: i for i, x in enumerate(dates)}}
+    tmean = [v if v is not None else 25.0 for v in d["temperature_2m_mean"]]
+    try:
+        os.makedirs(CACHE_DIR, exist_ok=True)
+        with gzip.open(path, "wt", encoding="utf-8") as f:
+            json.dump({"t": d["time"], "et0": et0, "rain": rain, "tmax": tmax, "tmean": tmean}, f)
+    except Exception:
+        pass
+    return _history_from_arrays([date.fromisoformat(x) for x in d["time"]], et0, rain, tmax, tmean)
+
+
+def fetch_history(lat, lon, first_year=1995, last_year=None, timeout=45):
+    """30 years of daily weather for the grid cell around (lat, lon). Memory- and disk-cached; raises if the service refuses
+    and there is no saved copy."""
+    last_year = last_year or date.today().year - 1
+    g = HISTORY_GRID_DEG
+    return _history_cached(round(round(lat / g) * g, 1), round(round(lon / g) * g, 1), first_year, last_year, timeout)
+
+
+fetch_history.cache_clear = _history_cached.cache_clear    # used by the Home "refresh" button
 
 
 def fetch_forecast(lat, lon, days=7, timeout=20):
@@ -115,7 +188,8 @@ def water_limit_date(water, sow):
 
 
 def simulate(hist, crop_id, sow, duration, taw_per_m=130, policy="scheduled", water="all_year",
-             eff=0.9, interval=BASELINE_INTERVAL_DAYS, depth=BASELINE_DEPTH_MM, n_irr=0):
+             eff=0.9, interval=BASELINE_INTERVAL_DAYS, depth=BASELINE_DEPTH_MM, n_irr=0,
+             override_until=None, override_events=None):
     """One season. policy: 'rainfed' | 'scheduled' (refill at RAW) | 'baseline' (fixed interval flood) |
     'calendar' (n_irr flood irrigations spread evenly over 15-85% of the cycle = package-of-practice baseline).
 
@@ -148,9 +222,15 @@ def simulate(hist, crop_id, sow, duration, taw_per_m=130, policy="scheduled", wa
         eta = ks * etc
         peff = EFFECTIVE_RAIN * hist["rain"][i]
         net_irrig = 0.0
-        if d <= allowed_until:
-            if policy == "scheduled" and Dr >= raw and k < duration * 0.92:
-                net_irrig = Dr
+        if override_until is not None and d <= override_until:
+            # days already lived: use what the farmer actually watered (net mm), not what the model would have done
+            net_irrig = (override_events or {}).get(d, 0.0)
+            if net_irrig:
+                events.append((d, net_irrig / eff))
+                gross += net_irrig / eff
+        elif d <= allowed_until:
+            if policy == "scheduled" and Dr >= min(raw, MAX_NET_IRRIGATION_MM) and k < duration * 0.92:
+                net_irrig = min(Dr, MAX_NET_IRRIGATION_MM)
                 events.append((d, net_irrig / eff))
                 gross += net_irrig / eff
             elif policy == "calendar" and k in cal_days:
@@ -190,14 +270,14 @@ def longest_dry_spell(hist, sow, duration):
     return best
 
 
-def climate_profile(lat, lon, crop_id, season, duration, taw_per_m=130, water="rain", years=None, hist=None):
+def climate_profile(lat, lon, crop_id, season, duration, taw_per_m=130, water="rain", years=None, hist=None, sow=None):
     """How this crop fares across past seasons at this farm, for this plot's water supply.
 
     Returns dict with relative-yield percentiles (1.0 = no water stress), probability of crop failure,
     irrigation need and the longest dry spell inside the crop cycle.
     """
     hist = hist or fetch_history(round(lat, 2), round(lon, 2))
-    m, dd = SEASON_START[season]
+    m, dd = sow_md(season, sow)
     first, last = hist["dates"][0].year, hist["dates"][-1].year
     policy = "rainfed" if water == "rain" else "scheduled"
     rows = []
@@ -266,9 +346,9 @@ PUMP_HEAD_M = 40.0               # assumption: typical total dynamic head, repla
 PUMP_EFFICIENCY = 0.35           # assumption: typical wire-to-water efficiency of an older farm pumpset
 
 
-def heavy_rain_share(hist, season, duration):
+def heavy_rain_share(hist, season, duration, sow=None):
     """Share of past seasons with at least one 'very heavy rain' day (>= 115.6 mm) inside the crop cycle."""
-    m, dd = SEASON_START[season]
+    m, dd = sow_md(season, sow)
     hits = total = 0
     for y in range(hist["dates"][0].year, hist["dates"][-1].year):
         i0 = hist["index"].get(date(y, m, dd))
@@ -279,9 +359,9 @@ def heavy_rain_share(hist, season, duration):
     return (hits / total if total else 0.0), hits, total
 
 
-def climate_trend(hist, season, duration, recent_years=10):
+def climate_trend(hist, season, duration, recent_years=10, sow=None):
     """Last `recent_years` seasons vs the earlier ones: change in season rain, water demand (ET0) and dry spells."""
-    m, dd = SEASON_START[season]
+    m, dd = sow_md(season, sow)
     rows = []
     for y in range(hist["dates"][0].year, hist["dates"][-1].year):
         i0 = hist["index"].get(date(y, m, dd))
@@ -302,7 +382,7 @@ def climate_trend(hist, season, duration, recent_years=10):
 
 
 def compare_practice(lat, lon, crop_id, season, duration, taw_per_m=130, water="all_year", acres=1.0,
-                     head_m=PUMP_HEAD_M, pump_eff=PUMP_EFFICIENCY, efficient_eff=0.90, calendar_depth=60, hist=None):
+                     head_m=PUMP_HEAD_M, pump_eff=PUMP_EFFICIENCY, efficient_eff=0.90, calendar_depth=60, hist=None, sow=None):
     """Median over past seasons, per season for `acres`, against a stated baseline.
 
     baseline        package-of-practice calendar: the crop's usual number of flood irrigations (crop table
@@ -317,7 +397,7 @@ def compare_practice(lat, lon, crop_id, season, duration, taw_per_m=130, water="
     rows_c = load_crops()
     n_irr = int(round(float(rows_c[rows_c.crop_id == crop_id].irrigations_needed.iloc[0])))
     n_irr = min(n_irr, 30)
-    m, dd = SEASON_START[season]
+    m, dd = sow_md(season, sow)
     arms = {"baseline": [], "sched_flood": [], "sched_efficient": []}
     for y in range(hist["dates"][0].year, hist["dates"][-1].year):
         sow = date(y, m, dd)
@@ -360,10 +440,10 @@ def compare_practice(lat, lon, crop_id, season, duration, taw_per_m=130, water="
 
 
 # ---------------------------------------------------------------- series for charts
-def season_series(lat, lon, crop_id, season, duration, taw_per_m=130, water_level="rain", hist=None):
+def season_series(lat, lon, crop_id, season, duration, taw_per_m=130, water_level="rain", hist=None, sow=None):
     """Per past season: relative yield, irrigation (gross mm) and rain, for charts. Oldest first."""
     hist = hist or fetch_history(round(lat, 2), round(lon, 2))
-    m, dd = SEASON_START[season]
+    m, dd = sow_md(season, sow)
     policy = "rainfed" if water_level == "rain" else "scheduled"
     out = []
     for y in range(hist["dates"][0].year, hist["dates"][-1].year):
@@ -374,9 +454,9 @@ def season_series(lat, lon, crop_id, season, duration, taw_per_m=130, water_leve
     return out
 
 
-def season_rain_stats(hist, season, duration=120):
+def season_rain_stats(hist, season, duration=120, sow=None):
     """Dry-year / usual / wet-year rainfall (10th, 50th, 90th percentile) over a `duration`-day season window."""
-    m, dd = SEASON_START[season]
+    m, dd = sow_md(season, sow)
     tot = []
     for y in range(hist["dates"][0].year, hist["dates"][-1].year):
         i0 = hist["index"].get(date(y, m, dd))
@@ -386,3 +466,99 @@ def season_rain_stats(hist, season, duration=120):
     if not tot:
         return None
     return {"p10": _pct(tot, 0.10), "p50": _pct(tot, 0.50), "p90": _pct(tot, 0.90), "n": len(tot)}
+
+
+# ---------------------------------------------------------------- live schedule from the farmer's own sowing date
+def weather_window(lat, lon, start, end, timeout=30):
+    """Daily ET0 and rain for start..end: ERA5 archive up to 6 days ago, the forecast service for the recent days and the
+    next ~15 days. Returns {date: (et0, rain, kind)} with kind 'observed' or 'forecast'. Days beyond the forecast are absent."""
+    today = date.today()
+    out = {}
+    arch_end = min(end, today - timedelta(days=6))
+    if start <= arch_end:
+        r = requests.get(ARCHIVE, params={"latitude": lat, "longitude": lon, "start_date": start.isoformat(),
+                                          "end_date": arch_end.isoformat(),
+                                          "daily": "et0_fao_evapotranspiration,precipitation_sum", "timezone": "auto"},
+                         timeout=timeout)
+        r.raise_for_status()
+        d = r.json()["daily"]
+        for t, e, p in zip(d["time"], d["et0_fao_evapotranspiration"], d["precipitation_sum"]):
+            out[date.fromisoformat(t)] = (e or 0.0, p or 0.0, "observed")
+    if end > arch_end:
+        r = requests.get(FORECAST, params={"latitude": lat, "longitude": lon, "past_days": 92, "forecast_days": 16,
+                                           "daily": "et0_fao_evapotranspiration,precipitation_sum", "timezone": "auto"},
+                         timeout=timeout)
+        r.raise_for_status()
+        d = r.json()["daily"]
+        for t, e, p in zip(d["time"], d["et0_fao_evapotranspiration"], d["precipitation_sum"]):
+            day = date.fromisoformat(t)
+            if day > arch_end and start <= day <= end and day not in out:
+                out[day] = (e or 0.0, p or 0.0, "observed" if day <= today else "forecast")
+    return out
+
+
+def _typical_year(hist, m, d, duration):
+    """The past year whose rain over this crop window is closest to the median: a realistic day-by-day 'normal' season."""
+    totals = []
+    for y in range(hist["dates"][0].year, hist["dates"][-1].year):
+        i0 = hist["index"].get(date(y, m, d))
+        if i0 is None or i0 + duration >= len(hist["dates"]):
+            continue
+        totals.append((sum(hist["rain"][i0:i0 + duration]), y))
+    if not totals:
+        return None
+    totals.sort()
+    return totals[len(totals) // 2][1]
+
+
+def live_schedule(lat, lon, crop_id, sow_date, duration, taw_per_m=130, water_level="till_mar", eff=0.9,
+                  actual_events=None, today=None):
+    """Watering schedule for one crop from the farmer's sowing date.
+
+    Weather used: observed (ERA5) up to a few days ago, the 15-day forecast, then a 'typical' past year for the rest.
+    actual_events = {date: net_mm} the farmer really watered (days up to today use these instead of the model's).
+    Returns dict with events [{date, gross_mm, net_mm, status, basis}], totals, and the soil-water state.
+    """
+    today = today or date.today()
+    hist = fetch_history(round(lat, 2), round(lon, 2))
+    start = sow_date
+    n = duration + 2
+    days = [start + timedelta(days=i) for i in range(n)]
+    try:
+        wx = weather_window(lat, lon, start, days[-1])
+    except Exception:
+        wx = {}
+    ty = _typical_year(hist, start.month, start.day, duration)
+    et0, rain, basis = [], [], []
+    for day in days:
+        if day in wx:
+            e, p, kind = wx[day]
+            et0.append(e); rain.append(p); basis.append(kind)
+            continue
+        got = None
+        if ty is not None:
+            try:
+                yy = ty + (day.year - start.year)       # keep the year offset when the season crosses New Year
+                i = hist["index"].get(date(yy, day.month, day.day))
+                if i is None and day.month == 2 and day.day == 29:
+                    i = hist["index"].get(date(yy, 2, 28))
+                if i is not None:
+                    got = (hist["et0"][i], hist["rain"][i])
+            except ValueError:
+                got = None
+        e, p = got if got else (4.0, 0.0)
+        et0.append(e); rain.append(p); basis.append("typical")
+    custom = {"dates": days, "et0": et0, "rain": rain, "tmax": [30.0] * n, "tmean": [25.0] * n,
+              "index": {d: i for i, d in enumerate(days)}}
+    res = simulate(custom, crop_id, start, duration, taw_per_m, "scheduled", water_level, eff,
+                   override_until=today if actual_events is not None else None, override_events=actual_events)
+    if not res:
+        return None
+    events = []
+    for d, gross in res["events"]:
+        events.append({"date": d, "gross_mm": gross, "net_mm": gross * eff,
+                       "status": "done" if d < today else "today" if d == today else "upcoming",
+                       "basis": basis[custom["index"][d]]})
+    return {"events": events, "n": len(events), "gross_mm": res["irrigation_mm"], "rel_yield": res["rel_yield"],
+            "start": start, "end": start + timedelta(days=duration), "typical_year": ty,
+            "days_of_forecast": sum(1 for b in basis if b == "forecast"), "weather_ok": bool(wx)}

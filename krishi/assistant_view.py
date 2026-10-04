@@ -72,6 +72,15 @@ def render(user, api_key):
             missing.append(t("ask.cap_no_voice"))
         st.info(" ".join(missing) + ("" if bhashini.configured() else " " + t("ask.cap_bhashini")))
 
+    focus = st.session_state.get("ask_focus")
+    if focus:
+        from krishi.crop_table import crop_names
+        f1, f2 = st.columns([4, 1])
+        f1.info("💬 " + t("ask.about_crop", crop=crop_names(focus["crop_id"])[current_lang()], acres=f"{focus.get('acres', 0):g}"))
+        if f2.button(t("ask.about_clear"), key="ask_focus_clear"):
+            st.session_state.pop("ask_focus", None)
+            st.rerun()
+
     history = _history(user)
     autoplay = st.session_state.pop("ask_autoplay", None)
     notice = st.session_state.pop("ask_notice", None)

@@ -110,6 +110,18 @@ def build_context(user):
     from krishi.crop_table import crop_names
 
     lines = [f"Name: {user.get('name')}", f"Today: {datetime.now().date().isoformat()}"]
+    focus = st.session_state.get("ask_focus")
+    if focus:
+        from krishi.crop_table import crop_names as _cn
+        line = f"The farmer is asking about THEIR crop {_cn(focus['crop_id'])['en']} on {focus.get('acres', 0):g} acre ({focus.get('water')} water)"
+        if focus.get("sow_date"):
+            try:
+                sown = datetime.fromisoformat(focus["sow_date"]).date()
+                days = (datetime.now().date() - sown).days
+                line += f", sowing date {sown.isoformat()} ({'day ' + str(days) + ' after sowing' if days >= 0 else str(-days) + ' days before sowing'})"
+            except Exception:
+                pass
+        lines.append(line + ". Answer about this crop unless they ask about something else.")
     farm = st.session_state.get("farm") or {}
     place = ", ".join(x for x in [farm.get("place") or "", farm.get("district") or user.get("district") or "",
                                   farm.get("state") or user.get("state") or ""] if x)

@@ -89,3 +89,24 @@ pump current/hour meter + relay ────────────┘         
 - **Safety:** relay interlocks with the starter, dry-run protection from the current sensor, and an advice-only mode (no relay) as the default.
 - **Data:** `sensor_readings(farm_id, probe_id, ts, vwc_pct, depth_cm)`, `pump_events(farm_id, ts_on, ts_off, kwh_or_hours)`; the model's soil-water state is nudged toward the measured value.
 - **Not claimed:** sensor cost, power draw and accuracy were not verified. Before building, validate on one farm against a gravimetric soil sample.
+
+
+## 5. Farmer flow, version 2 (current)
+
+`Login → Home tiles → What to grow (1 Location by GPS or edited, 2 Water and land, 3 Soil: test numbers or satellite estimate, 4 Sowing date, 5 Risk) → Crops → Plan (acres, guide, buyers) → My farm (crops, irrigation system, schedule) → Sell (all demand within 50 km) → Ask / Village / Water & energy at any time.`
+
+```
+MY FARM                                     SELL
+┌──────────────────────────┐                ┌──────────────────────────┐
+│ 🏠 Home   My farm        │                │ 🏠 Home   Sell to buyers │
+│ [My crops][Irrigation]   │                │ Crops in demand ≤ 50 km  │
+│ [Watering schedule]      │                │ Crop   Buyers Qty  ₹/q   │
+│ 🌾 Chana · 1.5 acre      │                │ Tur      1    120  7,800 │
+│  Day 20 of ~110: growing │                │ Chana    1     80  5,900 │
+│  Sowing [ 14 Sep ] 💾 💬 🗑│                │  my harvest ≈ 8 q        │
+│ 🚿 Flood / Borewell 5 HP │                │ [Filter crops][Sort ▾]   │
+│ 💧 Next watering 29 Oct  │                │ 🛒 Tur · Sakshi · 3 km   │
+│  date  status  mm  m³  h │                │  ₹7,800 · FAQ · Nov–Dec  │
+│  ✅ I watered [date][mm] │                │  [ Commit my crop ]      │
+└──────────────────────────┘                └──────────────────────────┘
+```

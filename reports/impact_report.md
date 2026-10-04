@@ -18,25 +18,26 @@ Yield is relative to the unstressed potential (1.00 = no water stress). A water 
 
 | Crop | Season | Usual irrigations | Baseline water m³ | Baseline yield | Lever 1 water m³ (vs baseline, P10–P90) | Lever 1 yield | Levers 1+2 water m³ (vs baseline, P10–P90) | Levers 1+2 yield | kWh saved | CO2 saved kg |
 |---|---|---|---|---|---|---|---|---|---|---|
-| wheat | Rabi | 5 | 1,214 | 0.93 | 1,606 (-32%, -96 to -30) | 1.00 | 1,071 (+12%, -31 to +13) | 1.00 | 45 | 32 |
-| chana | Rabi | 2 | 486 | 0.63 | 1,730 (-256%, -270 to -177) | 1.00 | 1,153 (-138%, -147 to -85) | 1.00 | -208 | -151 |
-| mustard | Rabi | 2 | 486 | 0.66 | 2,149 (-343%, -437 to -253) | 1.00 | 1,433 (-195%, -258 to -135) | 1.00 | -295 | -214 |
+| wheat | Rabi | 5 | 1,214 | 0.93 | 2,023 (-67%, -100 to -33) | 1.00 | 1,349 (-11%, -33 to +11) | 1.00 | -42 | -31 |
+| chana | Rabi | 2 | 486 | 0.63 | 1,925 (-296%, -302 to -216) | 1.00 | 1,283 (-164%, -168 to -111) | 1.00 | -248 | -181 |
+| mustard | Rabi | 2 | 486 | 0.66 | 2,428 (-400%, -408 to -317) | 1.00 | 1,619 (-233%, -239 to -178) | 1.00 | -353 | -257 |
 | onion | Rabi | 12 | 2,914 | 0.75 | 3,486 (-20%, -30 to -1) | 0.96 | 2,324 (+20%, +13 to +33) | 0.96 | 184 | 134 |
-| tomato | Rabi | 12 | 2,914 | 1.00 | 1,990 (+32%, +23 to +48) | 1.00 | 1,327 (+54%, +49 to +66) | 1.00 | 494 | 359 |
-| cotton | Kharif | 6 | 1,457 | 1.00 | 1,017 (+30%, +21 to +100) | 1.00 | 678 (+53%, +47 to +100) | 1.00 | 243 | 176 |
-| tur | Kharif | 2 | 486 | 0.86 | 1,188 (-145%, -266 to -139) | 1.00 | 792 (-63%, -144 to -59) | 1.00 | -96 | -69 |
+| tomato | Rabi | 12 | 2,914 | 1.00 | 1,882 (+35%, +22 to +46) | 1.00 | 1,255 (+57%, +48 to +64) | 1.00 | 517 | 376 |
+| cotton | Kharif | 6 | 1,457 | 1.00 | 1,214 (+17%, -14 to +44) | 1.00 | 809 (+44%, +24 to +63) | 1.00 | 202 | 147 |
+| tur | Kharif | 2 | 486 | 0.86 | 1,214 (-150%, -325 to -67) | 1.00 | 809 (-67%, -183 to -11) | 1.00 | -101 | -73 |
 
-**Reading it honestly**
-- Where the baseline already waters enough (cotton, tomato, wheat with drip), scheduling and an efficient method cut water at equal yield.
-- Where the usual practice is a deliberate shortcut (chana and mustard get about 2 irrigations and reach roughly 63–66% of full yield), the scheduler uses **more** water and lifts yield. That is a yield gain, not a water saving. Negative "saved" figures above mean extra water.
+**Reading it honestly** (generated from the table above)
+- Water saved at equal or better yield (scheduling plus an efficient method): **onion** 20% less water (-20% with scheduling alone), yield +28% relative; **tomato** 57% less water (+35% with scheduling alone), yield +0% relative; **cotton** 44% less water (+17% with scheduling alone), yield +0% relative.
+- Crops where the usual practice leaves the crop short of water, so the schedule uses MORE water to protect yield: **wheat** (water 11% more, yield +7% relative); **chana** (water 164% more, yield +59% relative); **mustard** (water 233% more, yield +51% relative); **tur** (water 67% more, yield +17% relative). That is a yield gain, not a water saving; a negative saved figure above means extra water.
+- Each single watering is capped at 60 mm net (what a farmer can realistically apply), so deep-soil crops get more, smaller waterings.
 
 ## 3. Sensitivity of the energy result to pump assumptions (cotton, Kharif, levers 1+2, per acre)
 
 | Pump efficiency | Lift 30 m | Lift 40 m | Lift 60 m |
 |---|---|---|---|
-| 25% | 255 kWh (185 kg CO2) | 340 kWh (247 kg CO2) | 509 kWh (370 kg CO2) |
-| 35% | 182 kWh (132 kg CO2) | 243 kWh (176 kg CO2) | 364 kWh (264 kg CO2) |
-| 50% | 127 kWh (93 kg CO2) | 170 kWh (123 kg CO2) | 255 kWh (185 kg CO2) |
+| 25% | 212 kWh (154 kg CO2) | 282 kWh (205 kg CO2) | 423 kWh (308 kg CO2) |
+| 35% | 151 kWh (110 kg CO2) | 202 kWh (147 kg CO2) | 302 kWh (220 kg CO2) |
+| 50% | 106 kWh (77 kg CO2) | 141 kWh (103 kg CO2) | 212 kWh (154 kg CO2) |
 
 Energy scales with lift and inversely with efficiency, so the farmer's own pump details should replace these assumptions.
 
@@ -47,25 +48,20 @@ This is the size of the crop-choice lever, not a claimed saving: the farmer's al
 | Crop | Irrigation m³ | Usual profit ₹ | Bad year ₹ | ₹ per m³ | Poor-yield seasons | Risk | Numbers estimated |
 |---|---|---|---|---|---|---|---|
 | coriander | 496 | -3,000 | -15,000 | -6 | 0% | high | yes |
-| wheat | 1,071 | -5,000 | -14,000 | -5 | 0% | high | yes |
-| maize | 1,111 | -9,000 | -22,000 | -8 | 0% | high | yes |
-| chana | 1,153 | 9,000 | 3,000 | 8 | 0% | low | no |
-| brinjal | 1,159 | 155,000 | 101,000 | 134 | 0% | medium | yes |
+| maize | 1,079 | -9,000 | -22,000 | -8 | 0% | high | yes |
 | green_chilli | 1,227 | 35,000 | -19,000 | 29 | 0% | medium | yes |
-| jowar | 1,273 | -7,000 | -11,000 | -6 | 0% | high | no |
+| brinjal | 1,243 | 155,000 | 101,000 | 125 | 0% | medium | yes |
+| tomato | 1,255 | 73,000 | -27,000 | 58 | 0% | high | yes |
+| chana | 1,283 | 9,000 | 3,000 | 7 | 0% | low | no |
 | cabbage | 1,284 | 7,000 | -13,000 | 5 | 0% | high | yes |
-| tomato | 1,327 | 73,000 | -27,000 | 55 | 0% | high | yes |
+| jowar | 1,349 | -7,000 | -11,000 | -5 | 0% | high | no |
+| wheat | 1,349 | -5,000 | -14,000 | -4 | 0% | high | yes |
 | cauliflower | 1,393 | 28,000 | 3,000 | 20 | 0% | medium | yes |
-| mustard | 1,433 | 10,000 | 6,000 | 7 | 0% | low | no |
-| masoor | 1,507 | 22,000 | 16,000 | 15 | 0% | low | no |
+| masoor | 1,490 | 22,000 | 16,000 | 15 | 0% | low | no |
+| mustard | 1,619 | 10,000 | 6,000 | 6 | 0% | low | no |
 | onion | 2,324 | -10,000 | -42,000 | -4 | 0% | high | yes |
 
 ## 5. Village roll-up (SYNTHETIC demo village, 40 farmers, 5 km radius, Rabi)
-
-- Planned crop mix: **43,085 m³** of irrigation water in a usual year (40 irrigated acres).
-- If every irrigated acre went to the *thriftiest* profitable crop for its water supply: 36,093 m³.
-- If every irrigated acre went to the *thirstiest* profitable crop: 46,363 m³.
-- The demo plans are random draws and say nothing about what real farmers grow; the point is that the roll-up exists and the range is wide. Water available per village is an input (Water Security Plan), so no gap is claimed here.
 
 ## 6. Post-harvest loss at stake (value per acre, upper bound)
 

@@ -17,7 +17,7 @@ import seaborn as sns
 import plotly.express as px
 import plotly.graph_objects as go
 from streamlit_js_eval import streamlit_js_eval, copy_to_clipboard, create_share_link, get_geolocation
-from krishi import crop_view, plan_view, assistant_view, village_view, water_view, home_view, plans as plans_mod, geo, auth, crop_table
+from krishi import crop_view, plan_view, assistant_view, village_view, water_view, home_view, myfarm_view, sell_view, plans as plans_mod, geo, auth, crop_table
 from krishi import weather as wx
 from krishi.i18n import t, current_lang, set_lang, UI_LANGUAGES, rupees
 from krishi.ui import apply_theme, hero
@@ -735,7 +735,7 @@ with st.sidebar:
 
 # ---------- Top navigation (replaces the old sidebar menu) ----------
 NAV_VIEWS = {
-    "plan": "crop_prediction", "water": "water_energy", "commitments": "supply_commitments", "needs": "supply_commitments",
+    "plan": "crop_prediction", "myfarm": "my_farm", "sell": "sell", "water": "water_energy", "commitments": "supply_commitments", "needs": "supply_commitments",
     "post": "vendor_post", "ask": "assistant", "village": "village", "group": "communities", "prices": "market_prices",
     "tips": "farming_tips",
 }
@@ -1007,6 +1007,18 @@ else:
 
     elif st.session_state.view == "home":
         home_view.render(user, st.session_state.current_user_type)
+
+    elif st.session_state.view == "my_farm":
+        if st.session_state.current_user_type == "farmer":
+            myfarm_view.render(user)
+        else:
+            st.info("My farm is for farmers.")
+
+    elif st.session_state.view == "sell":
+        if st.session_state.current_user_type == "farmer":
+            sell_view.render(user, respond_to_poll)
+        else:
+            st.info("This tab is for farmers. Vendors post needs under Post need.")
 
     elif st.session_state.view == "water_energy":
         if st.session_state.current_user_type == "farmer":

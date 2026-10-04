@@ -39,14 +39,14 @@ def village_water(lat, lon, km=5.0, season="Rabi", budget_m3=None, head_m=water.
         level = p.get("water") if p.get("plot") == "water" else "rain"
         level = level or "rain"
         soil = p.get("soil")
-        key = (p["crop_id"], level, soil)
+        key = (p["crop_id"], level, soil, p.get("taw"))
         a = agg.setdefault(key, {"acres": 0.0, "farmers": set(), "demo": False})
         a["acres"] += p["acres"]
         a["farmers"].add(p["farmer_id"])
         a["demo"] = a["demo"] or bool(p.get(DEMO_FLAG))
     out_rows = []
-    for (crop_id, level, soil), a in agg.items():
-        taw = water.SOIL_TAW[water.SOIL_OF_TYPE.get(soil, "unknown")]
+    for (crop_id, level, soil, row_taw), a in agg.items():
+        taw = row_taw or water.SOIL_TAW[water.SOIL_OF_TYPE.get(soil, "unknown")]
         prof = water.climate_profile(lat, lon, crop_id, season, _duration(crop_id), taw, level, hist=hist) \
             if level != "rain" else None
         mm50 = prof["irrigation_mm_p50"] if prof else 0.0

@@ -68,7 +68,8 @@ def _inputs(user):
                          default=farm.get("water") if farm.get("water") in keys else "till_mar", key="wat_level") or "till_mar"
         acres = d3.number_input(t("wat.acres"), min_value=0.5, max_value=100.0, value=2.0, step=0.5, key="wat_acres")
     return {"lat": round(lat, 2), "lon": round(lon, 2), "season": season, "crop": crop, "duration": duration,
-            "level": level, "acres": float(acres), "taw": water.SOIL_TAW[water.SOIL_OF_TYPE.get(soil, "unknown")]}
+            "level": level, "acres": float(acres),
+            "taw": water.SOIL_TAW[water.SOIL_OF_TYPE[soil]] if soil in water.SOIL_OF_TYPE else (farm.get("taw") or water.SOIL_TAW["unknown"])}
 
 
 def tab_next(s):
@@ -235,13 +236,20 @@ def render(user):
     if not s:
         return
     tabs = st.tabs([t("wat.tab_next"), t("wat.tab_past"), t("wat.tab_compare"), t("wat.tab_pump"), t("wat.tab_log")])
+
+    def safe(fn, *args):
+        try:
+            fn(*args)
+        except Exception:
+            st.warning(t("wat.weather_busy"))
+
     with tabs[0]:
-        tab_next(s)
+        safe(tab_next, s)
     with tabs[1]:
-        tab_past(s)
+        safe(tab_past, s)
     with tabs[2]:
-        tab_compare(s)
+        safe(tab_compare, s)
     with tabs[3]:
-        tab_pump(s)
+        safe(tab_pump, s)
     with tabs[4]:
-        tab_log(s, user)
+        safe(tab_log, s, user)

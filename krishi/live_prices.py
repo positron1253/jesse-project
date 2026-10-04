@@ -112,14 +112,19 @@ class Ceda:
 
 
 def harvest_price_range(rows, harvest_months):
-    """From monthly price rows -> (lo, mid, hi, years) of the yearly harvest-month mean modal price."""
-    months = set(harvest_months)
+    """From monthly price rows -> (lo, mid, hi, years) of the yearly harvest-month mean modal price.
+
+    harvest_months is an ordered list such as [10, 11, 12] or a wrap-around one such as [12, 1, 2]; months that come
+    before the first listed month belong to the season that started the previous calendar year.
+    """
+    months = list(harvest_months)
+    wraps = len(months) > 1 and months[0] > months[-1]
+    first = months[0]
     by_year = {}
     for r in rows:
         y, m = int(r["t"][:4]), int(r["t"][5:7])
         if m in months and r.get("p_modal"):
-            # Harvest seasons crossing New Year are grouped by the season's start year
-            season_year = y - 1 if (min(months) > 6 and m < 6) else y
+            season_year = y - 1 if (wraps and m < first) else y
             by_year.setdefault(season_year, []).append(r["p_modal"])
     yearly = {y: statistics.mean(v) for y, v in by_year.items() if v}
     if len(yearly) < 2:
@@ -184,3 +189,108 @@ def fetch_today_datagov(state, commodity_name, limit=50, timeout=8):
         return r.json().get("records") or None
     except Exception:
         return None
+
+
+_RANGE_CACHE = {}          # state -> (fetched_at, data, ok)
+RANGE_TTL_OK = 12 * 3600   # live data is reused for 12 hours
+RANGE_TTL_FAIL = 15 * 60   # a failed attempt is not retried for 15 minutes (the service may be down)
+
+
+def refresh_price_ranges(state, crops, years_back=6, max_workers=8, budget_seconds=12):
+    """Live harvest-month price ranges from the official Agmarknet data (CEDA), for many crops at once.
+
+    crops: list of (crop_id, harvest_months_text, static_mid) where static_mid is the stored value (a sanity check).
+    Returns {crop_id: {"lo", "mid", "hi", "years", "latest", "latest_month"}}. Crops with too little data, a slow
+    service or a failed call are left out, so the stored table values stay in force for them. Never raises and never
+    waits longer than about `budget_seconds`.
+    """
+    import time as _time
+    from concurrent.futures import ThreadPoolExecutor, wait
+    ceda = Ceda(timeout=10)
+    start = f"{date.today().year - years_back}-01-01"
+
+    def one(item):
+        crop_id, hm_text, static_mid = item
+        try:
+            months = parse_months(hm_text)
+            if not months:
+                return crop_id, None
+            rows = ceda.monthly("prices", crop_id, state, None, start=start)
+            if not rows:
+                return crop_id, None
+            rng = harvest_price_range(rows, months)
+            if not rng:
+                return crop_id, None
+            lo, mid, hi, yrs = rng
+            if static_mid and not (static_mid / 3 <= mid <= static_mid * 3):
+                return crop_id, None            # looks like a data glitch or a unit mismatch: keep the stored value
+            last = rows[-1]
+            return crop_id, {"lo": lo, "mid": mid, "hi": hi, "years": yrs, "latest": round(last["p_modal"]),
+                             "latest_month": last["t"]}
+        except Exception:
+            return crop_id, None
+
+    try:
+        ceda.state_id(state)
+        ceda.commodity_id("wheat")      # warm the id caches once, not in every worker
+    except Exception:
+        return {}
+    ex = ThreadPoolExecutor(max_workers=max_workers)
+    futures = [ex.submit(one, item) for item in crops]
+    done, _ = wait(futures, timeout=budget_seconds)
+    ex.shutdown(wait=False, cancel_futures=True)
+    out = {}
+    for f in done:
+        try:
+            cid, v = f.result()
+            if v:
+                out[cid] = v
+        except Exception:
+            pass
+    return out
+
+
+def get_price_ranges(state, crops):
+    """Cached wrapper: live ranges for `state` (12 h if it worked, 15 min if it failed). Returns (data, is_live)."""
+    import time as _time
+    hit = _RANGE_CACHE.get(state)
+    if hit:
+        fetched, data, ok = hit
+        if _time.time() - fetched < (RANGE_TTL_OK if ok else RANGE_TTL_FAIL):
+            return data, ok
+    data = refresh_price_ranges(state, crops)
+    ok = bool(data)
+    _RANGE_CACHE[state] = (_time.time(), data, ok)
+    return data, ok
+
+
+_PREFETCH_RUNNING = set()
+
+
+def peek_price_ranges(state):
+    """Cached live ranges without any network call: (data, ok) or ({}, None) if nothing has been fetched yet."""
+    import time as _time
+    hit = _RANGE_CACHE.get(state)
+    if hit and _time.time() - hit[0] < (RANGE_TTL_OK if hit[2] else RANGE_TTL_FAIL):
+        return hit[1], hit[2]
+    return {}, None
+
+
+def prefetch_price_ranges(state, crops):
+    """Start fetching live ranges in a background thread (once per state) so the crop screen never waits."""
+    import threading
+    import time as _time
+    hit = _RANGE_CACHE.get(state)
+    if hit and _time.time() - hit[0] < (RANGE_TTL_OK if hit[2] else RANGE_TTL_FAIL):
+        return
+    if state in _PREFETCH_RUNNING:
+        return
+    _PREFETCH_RUNNING.add(state)
+
+    def run():
+        try:
+            get_price_ranges(state, crops)
+        finally:
+            _PREFETCH_RUNNING.discard(state)
+
+    threading.Thread(target=run, daemon=True).start()

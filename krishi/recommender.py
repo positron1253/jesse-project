@@ -34,10 +34,11 @@ COST_EST_MARKUP = 1.15   # cost figures marked `est` tend to understate picking 
 
 
 @lru_cache(maxsize=4096)
-def _profile(lat, lon, crop_id, season, duration, taw, water):
-    """30-season climate profile for a crop on a plot's water supply (cached; None if weather data is unavailable)."""
+def _profile(lat, lon, crop_id, season, duration, taw, water, sow=None):
+    """30-season climate profile for a crop on a plot's water supply (cached; None if weather data is unavailable).
+    `sow` is the farmer's sowing (month, day); None means the season's typical start."""
     try:
-        return water_mod.climate_profile(lat, lon, crop_id, season, duration, taw, water)
+        return water_mod.climate_profile(lat, lon, crop_id, season, duration, taw, water, sow=sow)
     except Exception:
         return None
 
@@ -109,8 +110,9 @@ def score_crop(row, plot, temp, ph, nearby, risk_appetite="medium", climate_ctx=
     duration = int(_num(row.get("duration_days"), 0))
     if climate_ctx and duration:
         args = (climate_ctx["lat"], climate_ctx["lon"], row["crop_id"], row["_season"], duration, climate_ctx["taw"])
-        prof = _profile(*args, plot.water)
-        ref = _profile(*args, "rain" if season_ok_rainfed else "all_year")
+        sow = climate_ctx.get("sow")
+        prof = _profile(*args, plot.water, sow)
+        ref = _profile(*args, "rain" if season_ok_rainfed else "all_year", sow)
         if prof is None or ref is None:
             prof = ref = None
     if prof:
@@ -121,7 +123,16 @@ def score_crop(row, plot, temp, ph, nearby, risk_appetite="medium", climate_ctx=
     elif not (need <= cap or season_ok_rainfed):
         return None
 
-    fit = min(_trap(temp, row["tmin"], row["topt_lo"], row["topt_hi"], row["tmax"]),
+    temp_use = temp
+    if climate_ctx and duration:
+        # temperature during THIS crop's own window (sowing date to harvest), not a season-wide average
+        try:
+            hist_ = water_mod.fetch_history(climate_ctx["lat"], climate_ctx["lon"])
+            m_, d_ = water_mod.sow_md(row["_season"], climate_ctx.get("sow"))
+            temp_use = water_mod.window_temp(hist_, m_, d_, duration) or temp
+        except Exception:
+            temp_use = temp
+    fit = min(_trap(temp_use, row["tmin"], row["topt_lo"], row["topt_hi"], row["tmax"]),
               _trap(ph, _num(row["ph_lo"], 5.5) - 1.5, row["ph_lo"], row["ph_hi"], _num(row["ph_hi"], 8) + 1.5))
     if fit < 0.3:
         return None

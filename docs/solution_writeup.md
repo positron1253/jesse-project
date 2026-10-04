@@ -17,12 +17,17 @@ The smallholder's day-to-day problems are specific:
 
 **Krishi Sahay is a decision platform that connects four things nobody connects today: the crop, its water and power, the climate it will actually face, and the buyer.** A farmer, in their own language and by voice, goes through:
 
-1. **Farm.** Village search or phone location (no typing coordinates), how long their well or canal lasts (rain only / till December / till March / all year), land split into watered and rain-only plots, soil type.
-2. **Crops.** The crops that suit that land, ranked by profit per acre in a usual year **and a bad year**, with a plain risk light. Each crop is tested against the **last 30 seasons at that farm** on that plot's own water supply. Cards say things like "water-short in 23 of the last 30 seasons here", and warn when very heavy rain (IMD's 115.6 mm/day class) is common.
-3. **Plan.** How many acres of each crop, with caps so nobody puts the whole farm into a crop that can crash. A "Should I water today?" check uses the 7-day forecast. A water, power and CO₂ panel compares the schedule with usual practice. A pump-sizing panel recommends the smallest pump (and solar array) that covers the crop's peak need.
-4. **Buyers.** Priced offers from vendors within 50 km (Haversine), with a two-step confirmation and a reference code. The farmer's saved plan feeds a planting registry; buyers see totals only, never names.
-5. **Ask.** A voice assistant (speak or type in 12 languages today, 20 with a free Bhashini account) that knows the farmer's land, plan, weather and nearby buyers, remembers the conversation, and answers aloud.
-6. **Village.** Everyone's saved plans added up into the village's irrigation demand, pumping power and CO₂, against the water available (an input from the Water Security Plan), with suggestions where a crop change would help. This is the bottom-up version of what Atal Bhujal Yojana asks gram panchayats to do ([PIB](https://static.pib.gov.in/WriteReadData/specificdocs/documents/2022/mar/doc202233033201.pdf)).
+1. **Location.** On login the phone's GPS fills in the farm location and the app shows the place name (village, district, state). If the farm is elsewhere, the farmer searches a village or types latitude and longitude, and can save it to their profile. Everything below uses this location.
+2. **Water and land.** How long their well or canal lasts (rain only / till December / till March / all year) and the land split into watered and rain-only plots.
+3. **Soil.** If the farmer has a soil test, they type the numbers (pH, nitrogen, phosphorus, potassium, organic carbon) and see an approximate Low/Medium/High reading. If not, the app estimates pH, organic carbon, texture and water-holding capacity from satellite soil maps (SoilGrids) for the location. Nitrogen, phosphorus and potassium cannot be read from a map and stay unknown.
+4. **Sowing date.** The farmer chooses when to start sowing. Every risk, water and temperature number uses that date, so the same crop can be a good or a bad choice depending on when it starts.
+5. **Crops.** The crops that suit that land, ranked by profit per acre in a usual year **and a bad year**, with a plain risk light. Each crop is tested against the **last 30 seasons at that farm** from the chosen sowing date, on that plot's own water supply. Cards say things like "water-short in 23 of the last 30 seasons here", warn when very heavy rain (IMD's 115.6 mm/day class) is common, and show the latest mandi price against the usual harvest-time price. Market prices are refreshed live from Agmarknet in the background, with the stored five-year prices as a fallback.
+6. **Plan and guidance.** How many acres of each crop, with caps so nobody puts the whole farm into a crop that can crash, a cultivation and irrigation guide as audio, and a voice assistant that knows the farmer's land, plan and weather and remembers the conversation (12 languages with voice today, 20 with text, all 22 with a free Bhashini account).
+7. **My farm.** The selected crops with sowing dates and growth stage, the farm's irrigation system (method, source, pump, power, supply hours), and a **watering schedule from the sowing date**: observed weather up to now, the 15-day forecast, then a typical year. The farmer records when they actually watered and the next dates update. Water, pump hours, energy and CO₂ come with it.
+8. **Sell.** Every open buyer need within 50 km (Haversine), all crops and future delivery windows, with a demand summary, filters, the farmer's own expected harvest alongside, and a two-step "commit my crop" with a reference code. The saved plan feeds a planting registry; buyers see totals only, never names.
+9. **Village.** Everyone's saved plans added up into the village's irrigation demand, pumping power and CO₂, against the water available (an input from the Water Security Plan), with suggestions where a crop change would help. This is the bottom-up version of what Atal Bhujal Yojana asks gram panchayats to do ([PIB](https://static.pib.gov.in/WriteReadData/specificdocs/documents/2022/mar/doc202233033201.pdf)).
+
+A Home screen with large icon tiles is the menu; every other page has a big Home button.
 
 See `docs/architecture.svg` for the system, data, water/energy and money flows.
 
@@ -52,13 +57,13 @@ Reference site Yavatmal, Maharashtra, black soil, 30 seasons of weather. Baselin
 
 | Crop | Water saved by scheduling (flood) | Water saved by scheduling + drip | Yield vs baseline |
 |---|---|---|---|
-| Cotton (Kharif) | 30% | 53% | same |
-| Tomato (Rabi) | 32% | 54% | same |
+| Cotton (Kharif) | 17% | 44% | same |
+| Tomato (Rabi) | 35% | 57% | same |
 | Onion (Rabi) | uses 20% more | 20% less | +28% relative yield |
-| Wheat (Rabi) | uses 32% more | 12% less | +8% relative yield |
-| Chana, mustard (Rabi) | uses more | uses more | +59% / +52% relative yield (usual practice is a deliberate 2-irrigation shortcut) |
+| Wheat (Rabi) | uses 67% more | uses 11% more | +7% relative yield |
+| Chana, mustard, tur | uses more | uses more | +59% / +51% / +17% relative yield (usual practice is a deliberate 2-irrigation shortcut) |
 
-The honest message: where the usual practice already waters enough, scheduling and drip save a third to a half of the water at equal yield and cut pump energy and CO₂ in proportion (cotton: about 243 kWh and 176 kg CO₂ per acre per season at the assumed pump). Where the usual practice is a shortcut, the schedule spends more water and lifts yield; that is a productivity gain, not a saving, and we report it as such. The largest water lever is **crop choice on the same well**, which the village roll-up and the ranking make visible. Post-harvest losses at stake are quantified per crop (for example tomato about ₹24,700 per acre at an 11.6% loss share) as an **upper bound** for what buyers lined up before sowing could protect; the actual reduction is a pilot hypothesis, not a result.
+The honest message: where the usual practice already waters enough (cotton, tomato, and onion with drip), scheduling and drip save between a fifth and over half of the water at equal or better yield and cut pump energy and CO₂ in proportion (cotton: about 202 kWh and 147 kg CO₂ per acre per season at the assumed pump). Each single watering is capped at 60 mm net, what a farmer can realistically apply. Where the usual practice is a shortcut, the schedule spends more water and lifts yield; that is a productivity gain, not a saving, and we report it as such. The largest water lever is **crop choice on the same well**, which the village roll-up and the ranking make visible. Post-harvest losses at stake are quantified per crop (for example tomato about ₹24,700 per acre at an 11.6% loss share) as an **upper bound** for what buyers lined up before sowing could protect; the actual reduction is a pilot hypothesis, not a result.
 
 ## 7. Feasibility and affordability
 

@@ -12,7 +12,7 @@ from io import BytesIO
 import streamlit as st
 
 from krishi import crop_model as cm
-from krishi import location_ui, soilcard
+from krishi import live_prices, location_ui, soilcard, soilmap
 from krishi import water as water_mod
 from krishi import pump as pump_mod
 from krishi import crop_table, geo, live_prices, plans
@@ -72,6 +72,33 @@ def _farm():
     return st.session_state.setdefault("farm", {})
 
 
+def farm_taw(farm):
+    """Soil water-holding capacity (mm per metre) for this farm: chosen soil type, else map/test estimate, else default."""
+    if farm.get("taw"):
+        return farm["taw"]
+    return water_mod.SOIL_TAW[water_mod.SOIL_OF_TYPE.get(farm.get("soil"), "unknown")]
+
+
+def sow_tuple(farm):
+    d = farm.get("sow_date")
+    return (d.month, d.day) if d else None
+
+
+@st.cache_data(ttl=7 * 24 * 3600, show_spinner=False)
+def _soil_map(lat, lon):
+    return soilmap.soil_from_coordinates(lat, lon)
+
+
+def _price_items(state):
+    """(crop_id, harvest_months, stored mid price) for every crop, for the live price refresh."""
+    df = crop_table.load_crops()
+    items = []
+    for crop_id, g in df.groupby("crop_id"):
+        row = (g[g.state.str.lower() == str(state).lower()] if (g.state.str.lower() == str(state).lower()).any() else g[g.state == "*"]).iloc[0]
+        items.append((crop_id, row["harvest_months"], row["price_q_mid"]))
+    return items
+
+
 def _go(step):
     st.session_state.plan_step = step
     st.rerun()
@@ -87,15 +114,100 @@ def _place_picker(user):
     return location_ui.render_location(user)
 
 
+def _soil_section(farm):
+    """Soil: from the map by default, or the farmer's own soil-test numbers. Sets farm['ph'], ['taw'], ['soil_card']."""
+    st.caption("🧪 " + t("p1.card_where"))
+    mode = st.radio(t("soil.mode"), ["map", "test"], format_func=lambda m: t(f"soil.mode_{m}"), key="soil_mode",
+                    horizontal=False)
+    smap = None
+    if farm.get("lat") is not None:
+        try:
+            with st.spinner(t("soil.reading")):
+                smap = _soil_map(round(farm["lat"], 3), round(farm["lon"], 3))
+        except Exception:
+            smap = None
+    farm["soil_map"] = smap
+
+    if smap:
+        with st.container(border=True):
+            st.markdown(f"**🛰️ {t('soil.map_title')}**")
+            m = st.columns(4)
+            if smap.get("ph") is not None:
+                m[0].metric("pH", f"{smap['ph']}")
+            if smap.get("oc_pct") is not None:
+                r = soilcard.rate("OC", smap["oc_pct"])
+                m[1].metric(t("soil.oc"), f"{smap['oc_pct']}%", t(f"p1.rating_{r}") if r else None, delta_color="off")
+            if smap.get("texture"):
+                m[2].metric(t("soil.texture"), smap["texture"].title(), f"{t('soil.clay')} {smap['clay']}%", delta_color="off")
+            if smap.get("taw_mm_per_m"):
+                m[3].metric(t("soil.water"), t("soil.taw_value", v=smap["taw_mm_per_m"]))
+            st.caption(t("soil.map_note"))
+    else:
+        st.info(t("soil.map_fail"))
+
+    ph_default = smap["ph"] if smap and smap.get("ph") is not None else 6.8
+    card = farm.setdefault("soil_card", {})
+    ph = ph_default
+    source = "map" if smap and smap.get("ph") is not None else "default"
+    if mode == "test":
+        st.caption(t("p1.card_help"))
+        ph = st.number_input("pH", min_value=3.0, max_value=10.5, step=0.1, value=float(ph_default), format="%.1f", key="plan_ph")
+        n1, n2, n3 = st.columns(3)
+        for col, nutrient, label_key in ((n1, "N", "p1.n"), (n2, "P", "p1.p"), (n3, "K", "p1.k")):
+            prev = card.get(nutrient)
+            prev = 0.0 if prev is None or isinstance(prev, str) else float(prev)
+            v = col.number_input(t(label_key), min_value=0.0, max_value=2000.0, value=prev, step=1.0, key=f"plan_card_{nutrient}")
+            card[nutrient] = v
+            r = soilcard.rate(nutrient, v)
+            col.caption(t(f"p1.rating_{r}") if r else t("p1.not_entered"))
+        prev = card.get("OC")
+        prev = (smap or {}).get("oc_pct") or 0.0 if prev is None or isinstance(prev, str) else float(prev)
+        oc = st.number_input(t("p1.oc"), min_value=0.0, max_value=6.0, value=float(prev), step=0.01, format="%.2f", key="plan_card_OC")
+        card["OC"] = oc
+        r = soilcard.rate("OC", oc)
+        st.caption(t(f"p1.rating_{r}") if r else t("p1.not_entered"))
+        st.caption(t("p1.card_note"))
+        st.caption(t("p1.card_get"))
+        source = "test"
+    else:
+        # no test: only what the map can tell (organic carbon); N, P, K stay unknown
+        card.clear()
+        if smap and smap.get("oc_pct"):
+            card["OC"] = smap["oc_pct"]
+
+    # optional soil-type override (for farmers who know their soil better than a 250 m map does)
+    soils = list(cm.SOIL_TYPES)
+    with st.expander(t("soil.override")):
+        soil = st.selectbox(t("p1.soil"), [None] + soils, format_func=lambda s_: t("soil.unknown") if s_ is None else s_,
+                            key="plan_soil")
+    farm["soil"] = soil
+    taw = None
+    if soil:
+        taw = water_mod.SOIL_TAW[water_mod.SOIL_OF_TYPE.get(soil, "unknown")]
+        if source != "test":
+            ph = cm.SOIL_TYPES[soil]["ph"]
+            source = "type"
+    elif smap and smap.get("taw_mm_per_m"):
+        taw = smap["taw_mm_per_m"]
+    farm["taw"] = taw
+    farm["ph"] = ph
+    farm["soil_source"] = source
+    st.caption(t(f"soil.using_{source}", ph=f"{ph:.1f}", taw=taw or water_mod.SOIL_TAW["unknown"]))
+
+
 def screen_farm(user):
     st.subheader(t("p1.title"))
-    ok = _place_picker(user)
     farm = _farm()
 
+    st.markdown("#### 1️⃣ " + t("step.where"))
+    ok = _place_picker(user)
+    if ok and farm.get("state"):
+        live_prices.prefetch_price_ranges(farm["state"], _price_items(farm["state"]))   # background, never blocks
+
+    st.markdown("#### 2️⃣ " + t("step.water"))
     labels = {k: t(f"w.{k}") for k in WATER_KEYS}
     farm["water"] = st.pills(t("p1.water"), WATER_KEYS, format_func=labels.get,
                              default=farm.get("water", "rain"), key="plan_water") or farm.get("water", "rain")
-
     unit = st.radio(t("p1.unit"), list(ACRES_PER_UNIT), format_func=t, horizontal=True, key="plan_unit")
     c1, c2 = st.columns(2)
     if farm["water"] != "rain":
@@ -108,39 +220,24 @@ def screen_farm(user):
     farm["land_w"], farm["land_r"] = land_w, land_r
     farm["acres_w"], farm["acres_r"] = land_w * ACRES_PER_UNIT[unit], land_r * ACRES_PER_UNIT[unit]
 
-    soils = list(cm.SOIL_TYPES)
-    soil = st.selectbox(t("p1.soil"), [None] + soils, format_func=lambda s: t("soil.unknown") if s is None else s,
-                        key="plan_soil")
-    ph = cm.SOIL_TYPES[soil]["ph"] if soil else 6.8
-    card = farm.setdefault("soil_card", {})
-    entered = any(not isinstance(v, str) and v for v in card.values())
-    st.caption("🧪 " + t("p1.card_where"))
-    with st.expander("🧪 " + t("p1.card"), expanded=entered):
-        st.caption(t("p1.card_help"))
-        ph = st.number_input("pH", min_value=3.0, max_value=10.5, step=0.1, value=float(ph), format="%.1f",
-                             key="plan_ph")
-        n1, n2, n3 = st.columns(3)
-        for col, nutrient, label_key in ((n1, "N", "p1.n"), (n2, "P", "p1.p"), (n3, "K", "p1.k")):
-            prev = card.get(nutrient)
-            prev = 0.0 if prev is None or isinstance(prev, str) else float(prev)
-            v = col.number_input(t(label_key), min_value=0.0, max_value=2000.0, value=prev, step=1.0, key=f"plan_card_{nutrient}")
-            card[nutrient] = v
-            r = soilcard.rate(nutrient, v)
-            col.caption(t(f"p1.rating_{r}") if r else t("p1.not_entered"))
-        prev = card.get("OC")
-        prev = 0.0 if prev is None or isinstance(prev, str) else float(prev)
-        oc = st.number_input(t("p1.oc"), min_value=0.0, max_value=6.0, value=prev, step=0.01, format="%.2f", key="plan_card_OC")
-        card["OC"] = oc
-        r = soilcard.rate("OC", oc)
-        st.caption(t(f"p1.rating_{r}") if r else t("p1.not_entered"))
-        st.caption(t("p1.card_note"))
-        st.caption(t("p1.card_get"))
-    farm["ph"] = ph
-    farm["soil"] = soil
+    st.markdown("#### 3️⃣ " + t("step.soil"))
+    _soil_section(farm)
 
+    st.markdown("#### 4️⃣ " + t("step.sowing"))
+    default_sow = farm.get("sow_date") or water_mod.default_sowing_date()
+    sow = st.date_input(t("p1.sow"), value=default_sow, min_value=date.today() - timedelta(days=120),
+                        max_value=date.today() + timedelta(days=400), key="plan_sow", help=t("p1.sow_help"))
+    farm["sow_date"] = sow
+    farm["season"] = water_mod.season_of(sow)
+    days = (sow - date.today()).days
+    st.caption(t("p1.sow_season", season=t(f"s.{farm['season']}"),
+                 when=(t("p1.sow_in", n=days) if days > 0 else t("p1.sow_today") if days == 0 else t("p1.sow_ago", n=-days))))
+
+    st.markdown("#### 5️⃣ " + t("p1.risk"))
     risk_labels = {k: t(f"risk.appetite_{k}") for k in ("low", "medium", "high")}
     farm["appetite"] = st.pills(t("p1.risk"), list(risk_labels), format_func=risk_labels.get,
-                                default=farm.get("appetite", "medium"), key="plan_appetite") or "medium"
+                                default=farm.get("appetite", "medium"), key="plan_appetite",
+                                label_visibility="collapsed") or "medium"
 
     if st.button(t("btn.next"), type="primary", use_container_width=True):
         if not ok:
@@ -193,9 +290,11 @@ def _card(opt, rank, nearby, state):
         if opt.msp:
             price_line += " · " + t("card.msp", msp=rupees(opt.msp))
         st.caption(price_line)
-        mandi = _mandi_now(opt.crop_id, state)
-        if mandi:
-            st.caption(t("card.mandi_now", p=rupees(mandi["modal"]), month=mandi["month"]))
+        lv = (_farm().get("live_prices") or {}).get(opt.crop_id)
+        if lv:
+            usual = opt.row["price_q_mid"]
+            diff = round(100 * (lv["latest"] / usual - 1)) if usual else 0
+            st.caption(t("card.mandi_now", p=rupees(lv["latest"]), month=lv["latest_month"]) + f" ({diff:+d}% " + t("card.vs_usual") + ")")
         st.write(_risk_text(opt))
         st.caption(f"{t('card.fit')}: {_dots(opt.fit_dots)}")
         if opt.climate:
@@ -204,7 +303,7 @@ def _card(opt, rank, nearby, state):
                 st.write(t("card.dry_years", n=round(c["p_poor"] * c["n_years"]), total=c["n_years"]))
             try:
                 hist = water_mod.fetch_history(round(_farm()["lat"], 2), round(_farm()["lon"], 2))
-                share, hits, total = water_mod.heavy_rain_share(hist, opt.row["_season"], int(opt.row["duration_days"]))
+                share, hits, total = water_mod.heavy_rain_share(hist, opt.row["_season"], int(opt.row["duration_days"]), sow=sow_tuple(_farm()))
                 if share >= 0.15:
                     st.write(t("card.heavy_rain", n=hits, total=total))
             except Exception:
@@ -230,10 +329,10 @@ def _card(opt, rank, nearby, state):
 def screen_crops(user):
     farm = _farm()
     st.subheader(t("p2.title"))
-    seasons = list(SEASON_LABEL)
-    farm["season"] = st.pills(t("p2.season"), seasons, format_func=lambda s: t(f"s.{s}"),
-                              default=farm.get("season", current_season()), key="plan_season") or current_season()
-    season = farm["season"]
+    season = farm["season"] = water_mod.season_of(farm["sow_date"])
+    st.caption("🌱 " + t("p2.sowing_line", date=farm["sow_date"].strftime("%d %b %Y"), season=t(f"s.{season}")))
+    if st.button("✏️ " + t("p2.change_sowing"), key="p2_change"):
+        _go(1)
 
     try:
         climate = _climate(round(farm["lat"], 2), round(farm["lon"], 2), season)
@@ -243,10 +342,24 @@ def screen_crops(user):
         st.warning(t("p2.climate_fail"))
     farm["climate"] = climate
 
-    taw = water_mod.SOIL_TAW[water_mod.SOIL_OF_TYPE.get(farm.get("soil"), "unknown")]
-    ctx = {"lat": round(farm["lat"], 2), "lon": round(farm["lon"], 2), "taw": taw}
+    taw = farm_taw(farm)
+    sow_md_ = sow_tuple(farm)
+    ctx = {"lat": round(farm["lat"], 2), "lon": round(farm["lon"], 2), "taw": taw, "sow": sow_md_}
+
+    # live harvest-month prices from Agmarknet (fetched in the background; stored prices are used until they arrive)
+    pstate = farm.get("state") or "*"
+    live, live_ok = live_prices.peek_price_ranges(pstate)
+    if live_ok is None:
+        live_prices.prefetch_price_ranges(pstate, _price_items(pstate))
+        st.caption("💰 " + t("p2.prices_loading"))
+    elif live_ok:
+        crop_table.set_price_overrides(pstate, live)
+        st.caption("💰 " + t("p2.prices_live", n=len(live)))
+    else:
+        st.caption("💰 " + t("p2.prices_stored"))
+    farm["live_prices"] = live if live_ok else {}
     try:
-        trend = water_mod.climate_trend(water_mod.fetch_history(ctx["lat"], ctx["lon"]), season, 120)
+        trend = water_mod.climate_trend(water_mod.fetch_history(ctx["lat"], ctx["lon"]), season, 120, sow=sow_md_)
         if trend:
             st.caption("📈 " + t("p2.trend", recent=trend["recent_years"], years=trend["years"],
                                  rain=trend["rain_change_pct"], et0=trend["et0_change_pct"]))
@@ -254,7 +367,7 @@ def screen_crops(user):
         pass
     try:
         hist_ = water_mod.fetch_history(ctx["lat"], ctx["lon"])
-        rs = water_mod.season_rain_stats(hist_, season, 120)
+        rs = water_mod.season_rain_stats(hist_, season, 120, sow=sow_md_)
         if rs:
             st.info("🌧️ " + t("p2.rain_range", dry=round(rs["p10"]), usual=round(rs["p50"]), wet=round(rs["p90"]), n=rs["n"]))
         fc_ = water_mod.fetch_forecast(ctx["lat"], ctx["lon"], 7)
@@ -393,22 +506,36 @@ def screen_plan(user, respond_fn):
 
         if st.button(t("btn.save_plan"), type="primary", use_container_width=True):
             plans.save_plan(user["id"], farm["lat"], farm["lon"], farm["season"], plan,
-                            meta={"water": farm["water"], "soil": farm.get("soil"), "state": farm.get("state")})
+                            meta={"water": farm["water"], "soil": farm.get("soil"), "state": farm.get("state"),
+                                  "taw": farm_taw(farm), "sow_date": farm["sow_date"].isoformat(),
+                                  "lat_label": farm.get("place") or farm.get("district")})
             st.success(t("msg.saved"))
+            st.session_state["plan_saved_now"] = True
 
+
+    if st.session_state.get("plan_saved_now"):
+        n1, n2 = st.columns(2)
+        if n1.button("➡️ " + t("home.t_myfarm"), key="after_save_farm", type="primary", use_container_width=True):
+            st.session_state["plan_saved_now"] = False
+            st.session_state.view = "my_farm"
+            st.rerun()
+        if n2.button("➡️ " + t("home.t_sell"), key="after_save_sell", use_container_width=True):
+            st.session_state["plan_saved_now"] = False
+            st.session_state.view = "sell"
+            st.rerun()
 
     # Water, power and CO2 against the usual practice, for crops on watered land
     watered = [r for r in rows if r.plot == "water"]
     if watered:
         with st.expander(t("plan.water_title")):
             try:
-                taw = water_mod.SOIL_TAW[water_mod.SOIL_OF_TYPE.get(farm.get("soil"), "unknown")]
+                taw = farm_taw(farm)
                 lat2, lon2 = round(farm["lat"], 2), round(farm["lon"], 2)
                 shown_note = False
                 for r in watered:
                     o = by_key[(r.plot, r.crop_id)]
                     cmp = water_mod.compare_practice(lat2, lon2, r.crop_id, farm["season"], int(o.row["duration_days"]),
-                                                     taw, farm["water"], acres=r.acres)
+                                                     taw, farm["water"], acres=r.acres, sow=sow_tuple(farm))
                     if not cmp:
                         continue
                     if not shown_note:
@@ -439,7 +566,7 @@ def screen_plan(user, respond_fn):
             head = q2.number_input(t("pump.head"), min_value=5.0, max_value=200.0, value=float(water_mod.PUMP_HEAD_M), step=5.0, key="pump_head")
             drip = q3.checkbox(t("pump.drip"), value=False, key="pump_drip")
             try:
-                peak = pump_mod.peak_demand_mm_day(farm["lat"], farm["lon"], pc, farm["season"], int(po.row["duration_days"]))
+                peak = pump_mod.peak_demand_mm_day(farm["lat"], farm["lon"], pc, farm["season"], int(po.row["duration_days"]), sow=sow_tuple(farm))
                 sz = pump_mod.size_pump(pr.acres, peak, hours, head, water_mod.PUMP_EFFICIENCY, 0.9 if drip else 0.6)
                 st.write(t("pump.result", acres=f"{pr.acres:g}", peak=f"{peak:.1f}", m3=rupees(sz["daily_m3"]),
                            hp=sz["hp"], kwp=sz["array_kwp"]))
@@ -454,10 +581,10 @@ def screen_plan(user, respond_fn):
                 unit_price = st.number_input(price_label, min_value=0.0, value=0.0, step=1.0, key="pump_price")
                 cost = st.number_input(t("pump.cost"), min_value=0.0, value=0.0, step=10000.0, key="pump_cost")
                 if cost > 0 and unit_price > 0:
-                    taw = water_mod.SOIL_TAW[water_mod.SOIL_OF_TYPE.get(farm.get("soil"), "unknown")]
+                    taw = farm_taw(farm)
                     cmp = water_mod.compare_practice(round(farm["lat"], 2), round(farm["lon"], 2), pc, farm["season"],
                                                      int(po.row["duration_days"]), taw, farm["water"], acres=pr.acres,
-                                                     head_m=head)
+                                                     head_m=head, sow=sow_tuple(farm))
                     kwh = cmp["sched_efficient" if drip else "sched_flood"]["kwh"]
                     pb = pump_mod.solar_payback(cost, kwh, src, unit_price if src == "grid" else None,
                                                 unit_price if src == "diesel" else None)
@@ -476,7 +603,7 @@ def screen_plan(user, respond_fn):
             if st.button(t("irrig.go"), key="irrig_go"):
                 try:
                     o = next(o for o in options["water"] if o.crop_id == ic)
-                    taw = water_mod.SOIL_TAW[water_mod.SOIL_OF_TYPE.get(farm.get("soil"), "unknown")]
+                    taw = farm_taw(farm)
                     adv = water_mod.next_irrigation_advice(
                         farm["lat"], farm["lon"], ic, int(d_since), int(o.row["duration_days"]), taw,
                         last_irrigation_days_ago=int(last) or None)
@@ -564,6 +691,10 @@ def _together_key():
 def render(user, respond_fn, together_key):
     set_together_key(together_key)
     step = st.session_state.setdefault("plan_step", 1)
+    farm_ = st.session_state.setdefault("farm", {})
+    if not farm_.get("sow_date"):          # e.g. a page opened mid-flow: fall back to the season's typical start
+        farm_["sow_date"] = water_mod.default_sowing_date()
+        farm_["season"] = water_mod.season_of(farm_["sow_date"])
     # progress indicator
     st.progress(step / 3)
     if step == 1 or "farm" not in st.session_state or "acres_w" not in _farm():

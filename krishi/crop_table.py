@@ -20,6 +20,16 @@ NUMERIC = [
 ]
 
 
+# Live price ranges set at run time: {(state_lower, crop_id): {"lo", "mid", "hi", "years"}}. Applied in crops_for().
+PRICE_OVERRIDES = {}
+
+
+def set_price_overrides(state, ranges):
+    """Install live harvest-month price ranges for a state (from live_prices.refresh_price_ranges)."""
+    for crop_id, r in (ranges or {}).items():
+        PRICE_OVERRIDES[(str(state).lower(), crop_id)] = r
+
+
 def _path(name):
     return os.path.join(DATA_DIR, name)
 
@@ -88,6 +98,13 @@ def crops_for(state, season, district=None):
         row = (st_rows if len(st_rows) else g[g.state == "*"]).iloc[0].copy()
         if season not in row["seasons"].split("|"):
             continue
+        live = PRICE_OVERRIDES.get((str(state).lower(), crop_id))
+        if live:
+            row["price_q_lo"], row["price_q_mid"], row["price_q_hi"] = live["lo"], live["mid"], live["hi"]
+            row["price_est"] = 0
+            row["src_price"] = (f"LIVE: CEDA Ashoka / DMI Agmarknet monthly modal, harvest months {row.get('harvest_months')}, "
+                                f"seasons {live['years'][0]}-{live['years'][-1]}")
+            row["price_live"] = True
         if crop_id in local:
             row["coverage"] = "district"
         elif len(st_rows):

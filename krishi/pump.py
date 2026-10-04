@@ -24,11 +24,11 @@ ARRAY_KWP_PER_KW = 1.25
 DIESEL_L_PER_KWH = 0.35
 
 
-def peak_demand_mm_day(lat, lon, crop_id, season, duration, percentile=0.90):
+def peak_demand_mm_day(lat, lon, crop_id, season, duration, percentile=0.90, sow=None):
     """Peak daily crop water need (ETc, mm/day): mid-season Kc x the 90th percentile daily ET0 over past seasons."""
     hist = water.fetch_history(round(lat, 2), round(lon, 2))
     c = water.crop_water_table().loc[crop_id]
-    m, dd = water.SEASON_START[season]
+    m, dd = water.sow_md(season, sow)
     mid_lo, mid_hi = int(duration * 0.45), int(duration * 0.75)
     vals = []
     from datetime import date
