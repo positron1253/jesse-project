@@ -458,5 +458,6 @@
   "sell.commit": "Commit my crop",
   "ask.about_crop": "Talking about your {crop} ({acres} acre).",
   "ask.about_clear": "Change",
-  "wat.weather_busy": "The weather service is busy right now and this part could not load. Please try again in a few minutes."
+  "wat.weather_busy": "The weather service is busy right now and this part could not load. Please try again in a few minutes.",
+  "reason.off_season": "usually sown in another season; the weather and water check passes for your sowing date, but prices and yield are for the usual season"
 }

@@ -29,6 +29,7 @@ WATER_CAPACITY = {
 LAMBDA = {"low": 0.75, "medium": 0.5, "high": 0.25}  # risk appetite -> downside weight
 GLUT_MIN_PLANS = 10
 FARMGATE = 0.92          # mandi modal price -> what the farmer receives after commission, transport, handling
+OFF_SEASON_DISCOUNT = 0.85  # sown outside its listed season: prices/yields in the table are for the usual season
 EST_SCORE_DISCOUNT = 0.5  # ranking discount for crops whose cost/price are estimates
 COST_EST_MARKUP = 1.15   # cost figures marked `est` tend to understate picking / hired labour
 
@@ -101,6 +102,9 @@ def _num(v, default=0.0):
 
 def score_crop(row, plot, temp, ph, nearby, risk_appetite="medium", climate_ctx=None):
     """Return CropOption or None if not feasible on this plot."""
+    off_season = bool(row.get("off_season"))
+    if off_season and not (climate_ctx and _num(row.get("duration_days"))):
+        return None
     season_ok_rainfed = row["_season"] in str(row["rainfed_ok_seasons"]).split("|")
     need = _num(row["irrigations_needed"], 0)
     cap = WATER_CAPACITY[row["_season"]][plot.water]
@@ -134,7 +138,9 @@ def score_crop(row, plot, temp, ph, nearby, risk_appetite="medium", climate_ctx=
             temp_use = temp
     fit = min(_trap(temp_use, row["tmin"], row["topt_lo"], row["topt_hi"], row["tmax"]),
               _trap(ph, _num(row["ph_lo"], 5.5) - 1.5, row["ph_lo"], row["ph_hi"], _num(row["ph_hi"], 8) + 1.5))
-    if fit < 0.3:
+    if fit < (0.65 if off_season else 0.3):
+        return None                         # a crop outside its usual season must be a clearly good match for this date
+    if off_season and prof and prof["p_poor"] >= 0.30:
         return None
     est = bool(_num(row.get("cost_est")) or _num(row.get("price_est")))
     dots = 4 if fit >= .85 else 3 if fit >= .65 else 2 if fit >= .45 else 1
@@ -203,6 +209,10 @@ def score_crop(row, plot, temp, ph, nearby, risk_appetite="medium", climate_ctx=
         reasons.append("rough_numbers")
         if S > 0:
             S *= EST_SCORE_DISCOUNT
+    if off_season:
+        reasons.append("off_season")
+        if S > 0:
+            S *= OFF_SEASON_DISCOUNT
     if floor > 0:
         reasons.append("msp_support")
     if g > 0:
@@ -227,7 +237,7 @@ def rank_crops(state, season, plot, climate, ph, nearby=None, risk_appetite="med
                district=None, top_n=3, include_perennial=False, climate_ctx=None):
     """Ranked CropOptions for one plot. `season` is 'Kharif' | 'Rabi' | 'Zaid'."""
     nearby = nearby or NearbySignals()
-    table = crops_for(state, season, district)
+    table = crops_for(state, season, district, any_season=bool(climate_ctx))
     options = []
     for _, row in table.iterrows():
         if not include_perennial and _num(row.get("duration_days"), 0) > 300:

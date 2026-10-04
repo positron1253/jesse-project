@@ -81,7 +81,7 @@ def crop_names(crop_id):
     return {"en": row["name_en"], "hi": row.get("name_hi", row["name_en"]), "mr": row.get("name_mr", row["name_en"])}
 
 
-def crops_for(state, season, district=None):
+def crops_for(state, season, district=None, any_season=False):
     """One row per crop for this state & season: state row if present else national default.
 
     Adds `coverage`: "district" (traded in the district's mandis), "state" (state data), "none" (national default only).
@@ -96,8 +96,9 @@ def crops_for(state, season, district=None):
     for crop_id, g in df.groupby("crop_id"):
         st_rows = g[g.state.str.lower() == str(state or "").lower()]
         row = (st_rows if len(st_rows) else g[g.state == "*"]).iloc[0].copy()
-        if season not in row["seasons"].split("|"):
-            continue
+        row["off_season"] = season not in row["seasons"].split("|")
+        if row["off_season"] and not any_season:
+            continue                       # off-season crops are only considered when the weather can be simulated
         live = PRICE_OVERRIDES.get((str(state).lower(), crop_id))
         if live:
             row["price_q_lo"], row["price_q_mid"], row["price_q_hi"] = live["lo"], live["mid"], live["hi"]
