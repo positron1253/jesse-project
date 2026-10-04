@@ -11,6 +11,9 @@ from typing import Literal
 
 import pandas as pd
 
+from functools import lru_cache
+
+from krishi import water as water_mod
 from krishi.crop_table import crops_for
 
 # Irrigations a plot can supply, by season. The panel's v1 spec used one number per water level, but a well that
@@ -28,6 +31,19 @@ GLUT_MIN_PLANS = 10
 FARMGATE = 0.92          # mandi modal price -> what the farmer receives after commission, transport, handling
 EST_SCORE_DISCOUNT = 0.5  # ranking discount for crops whose cost/price are estimates
 COST_EST_MARKUP = 1.15   # cost figures marked `est` tend to understate picking / hired labour
+
+
+@lru_cache(maxsize=4096)
+def _profile(lat, lon, crop_id, season, duration, taw, water):
+    """30-season climate profile for a crop on a plot's water supply (cached; None if weather data is unavailable)."""
+    try:
+        return water_mod.climate_profile(lat, lon, crop_id, season, duration, taw, water)
+    except Exception:
+        return None
+
+
+MIN_FEASIBLE_REL_YIELD = 0.35   # median relative yield below this: not worth growing on this water supply
+YIELD_FACTOR_BOUNDS = (0.2, 1.6)
 
 
 @dataclass
@@ -64,6 +80,7 @@ class CropOption:
     row: dict
     glut_note: str | None = None
     est: bool = False
+    climate: dict | None = None
 
 
 def _trap(x, a, b, c, d):
@@ -81,12 +98,27 @@ def _num(v, default=0.0):
     return default if v is None or pd.isna(v) else float(v)
 
 
-def score_crop(row, plot, temp, ph, nearby, risk_appetite="medium"):
+def score_crop(row, plot, temp, ph, nearby, risk_appetite="medium", climate_ctx=None):
     """Return CropOption or None if not feasible on this plot."""
     season_ok_rainfed = row["_season"] in str(row["rainfed_ok_seasons"]).split("|")
     need = _num(row["irrigations_needed"], 0)
     cap = WATER_CAPACITY[row["_season"]][plot.water]
-    if not (need <= cap or season_ok_rainfed):
+
+    # Climate risk: grow the crop in each of the past ~30 seasons at this farm on this plot's water supply
+    prof = ref = None
+    duration = int(_num(row.get("duration_days"), 0))
+    if climate_ctx and duration:
+        args = (climate_ctx["lat"], climate_ctx["lon"], row["crop_id"], row["_season"], duration, climate_ctx["taw"])
+        prof = _profile(*args, plot.water)
+        ref = _profile(*args, "rain" if season_ok_rainfed else "all_year")
+        if prof is None or ref is None:
+            prof = ref = None
+    if prof:
+        # not worth growing if the median year gives under 35% of full yield, or under half of what the crop
+        # normally gets (e.g. a vegetable that needs irrigation, on rain-only land)
+        if prof["rel_p50"] < MIN_FEASIBLE_REL_YIELD or prof["rel_p50"] < 0.5 * ref["rel_p50"]:
+            return None
+    elif not (need <= cap or season_ok_rainfed):
         return None
 
     fit = min(_trap(temp, row["tmin"], row["topt_lo"], row["topt_hi"], row["tmax"]),
@@ -101,8 +133,15 @@ def score_crop(row, plot, temp, ph, nearby, risk_appetite="medium"):
 
     # Normally-irrigated crop on a plot with limited water: still feasible (rain-fed season) but lower yield
     k_w = 0.75 if (need > cap and season_ok_rainfed and need > 0) else 1.0
+    y_bad_climate = None
+    if prof:
+        # The table's yields are typical (state average) yields, i.e. for the crop's reference water supply.
+        # Scale them by how this plot's water supply compares, and take the bad year from the plot's own P10.
+        k_w = max(YIELD_FACTOR_BOUNDS[0], min(YIELD_FACTOR_BOUNDS[1], prof["rel_p50"] / max(ref["rel_p50"], 0.2)))
     y_lo, y_hi = _num(row["yield_q_acre_lo"]) * k_w, _num(row["yield_q_acre_hi"]) * k_w
     y_mid = (y_lo + y_hi) / 2
+    if prof:
+        y_bad_climate = y_mid * (prof["rel_p10"] / max(prof["rel_p50"], 0.05))
 
     crop = row["crop_id"]
     n_plans = nearby.n_plans.get(crop, 0)
@@ -126,7 +165,8 @@ def score_crop(row, plot, temp, ph, nearby, risk_appetite="medium"):
     cost = _num(row["cost_rs_acre"]) * (COST_EST_MARKUP if _num(row.get("cost_est")) else 1.0)
 
     pi_mid = y_mid * P_mid * (1 - loss) - cost
-    pi_bad = y_lo * P_bad * (1 - loss) - cost
+    y_bad = y_lo if y_bad_climate is None else min(y_lo, y_bad_climate)
+    pi_bad = y_bad * P_bad * (1 - loss) - cost
     normal = (y_lo * P_mid * (1 - loss) - cost, y_hi * P_mid * (1 - loss) - cost)
     lam = LAMBDA.get(risk_appetite, 0.5)
     S = pi_mid - lam * (pi_mid - pi_bad)
@@ -156,6 +196,8 @@ def score_crop(row, plot, temp, ph, nearby, risk_appetite="medium"):
         reasons.append("msp_support")
     if g > 0:
         reasons.insert(0, "too_many_planting")
+    if prof and prof["p_poor"] >= 0.30:
+        reasons.insert(0, "dry_years")
     if k_w < 1:
         reasons.append("less_water_lower_yield")
     if row["coverage"] == "none":
@@ -166,12 +208,12 @@ def score_crop(row, plot, temp, ph, nearby, risk_appetite="medium"):
         yield_q_acre=(round(y_lo, 1), round(y_hi, 1)), price_q=round(P_mid), msp=msp,
         profit_normal=(round(normal[0], -3), round(normal[1], -3)), profit_worst=round(pi_bad, -3),
         profit_mid=round(pi_mid, -3), score=S, risk=risk, reasons=reasons, row=dict(row),
-        glut_note=glut_note, est=est,
+        glut_note=glut_note, est=est, climate=prof,
     )
 
 
 def rank_crops(state, season, plot, climate, ph, nearby=None, risk_appetite="medium",
-               district=None, top_n=3, include_perennial=False):
+               district=None, top_n=3, include_perennial=False, climate_ctx=None):
     """Ranked CropOptions for one plot. `season` is 'Kharif' | 'Rabi' | 'Zaid'."""
     nearby = nearby or NearbySignals()
     table = crops_for(state, season, district)
@@ -181,7 +223,7 @@ def rank_crops(state, season, plot, climate, ph, nearby=None, risk_appetite="med
             continue
         row = row.copy()
         row["_season"] = season
-        opt = score_crop(row, plot, climate["temperature"], ph, nearby, risk_appetite)
+        opt = score_crop(row, plot, climate["temperature"], ph, nearby, risk_appetite, climate_ctx)
         if opt:
             options.append(opt)
     options.sort(key=lambda o: o.score, reverse=True)
@@ -191,6 +233,12 @@ def rank_crops(state, season, plot, climate, ph, nearby=None, risk_appetite="med
         if local:
             options.remove(local)
             options.insert(0, local)
+    # A crop whose cost/price are only estimates is never #1 while a crop backed by measured data is profitable
+    if options and options[0].est:
+        measured = next((o for o in options if not o.est and o.score > 0 and o.coverage != "none"), None)
+        if measured:
+            options.remove(measured)
+            options.insert(0, measured)
     return options[:top_n] if top_n else options
 
 

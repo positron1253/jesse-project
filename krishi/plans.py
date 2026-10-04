@@ -66,7 +66,7 @@ def poll_quantity_q(poll):
     return float(poll.get("quantity", 0)) * TO_QUINTAL.get(str(poll.get("unit", "quintal")).lower(), 0)
 
 
-def save_plan(farmer_id, lat, lon, season, plan):
+def save_plan(farmer_id, lat, lon, season, plan, meta=None):
     """Replace this farmer's plan for the season with the new one."""
     plans = [p for p in _load(PLANS_FILE) if not (p["farmer_id"] == farmer_id and p["season"] == season)]
     now = datetime.now().isoformat()
@@ -75,6 +75,7 @@ def save_plan(farmer_id, lat, lon, season, plan):
             "id": str(uuid.uuid4()), "farmer_id": farmer_id, "lat": lat, "lon": lon, "season": season,
             "plot": r.plot, "crop_id": r.crop_id, "acres": r.acres,
             "yield_q_lo": r.yield_q[0], "yield_q_hi": r.yield_q[1], "created_at": now,
+            "water": (meta or {}).get("water"), "soil": (meta or {}).get("soil"), "state": (meta or {}).get("state"),
         })
     _save(PLANS_FILE, plans)
 
@@ -87,8 +88,8 @@ def nearby_signals(lat, lon, season, known_ids, km=50, exclude_farmer=None):
     sig = NearbySignals()
     farmers_seen = {}
     for p in _load(PLANS_FILE):
-        if p["season"] != season or p["farmer_id"] == exclude_farmer:
-            continue
+        if p["season"] != season or p["farmer_id"] == exclude_farmer or p.get("demo"):
+            continue  # synthetic demo plans must never influence real recommendations
         if haversine_km(lat, lon, p["lat"], p["lon"]) > km:
             continue
         c = p["crop_id"]
@@ -124,7 +125,7 @@ def supply_coming(lat, lon, season=None, km=50):
     """For vendors: planned production near them, by crop."""
     out = {}
     for p in _load(PLANS_FILE):
-        if season and p["season"] != season:
+        if (season and p["season"] != season) or p.get("demo"):
             continue
         if haversine_km(lat, lon, p["lat"], p["lon"]) > km:
             continue

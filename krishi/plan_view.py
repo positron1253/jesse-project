@@ -12,6 +12,8 @@ from io import BytesIO
 import streamlit as st
 
 from krishi import crop_model as cm
+from krishi import water as water_mod
+from krishi import pump as pump_mod
 from krishi import crop_table, geo, live_prices, plans
 from krishi import recommender as rec
 from krishi import weather as wx
@@ -140,6 +142,7 @@ def screen_farm(user):
         ph = st.number_input("pH", min_value=3.0, max_value=10.5, step=0.1, value=float(ph), format="%.1f",
                              key="plan_ph")
     farm["ph"] = ph
+    farm["soil"] = soil
 
     risk_labels = {k: t(f"risk.appetite_{k}") for k in ("low", "medium", "high")}
     farm["appetite"] = st.pills(t("p1.risk"), list(risk_labels), format_func=risk_labels.get,
@@ -187,7 +190,7 @@ def _card(opt, rank, nearby, state):
         h1.markdown(f"### 🌾 {name}")
         if rank == 1:
             h2.markdown(f"**{t('card.best')}**")
-        st.markdown(f"**{t('card.usual', lo=rupees(lo), hi=rupees(hi))}**")
+        st.markdown(f"**{t('card.usual', lo=inr(lo), hi=inr(hi))}**")
         bad = opt.profit_worst
         msg = t("card.bad_loss", x=inr(-bad)) if bad < 0 else t("card.bad_profit", x=inr(bad))
         (st.error if bad < 0 else st.info)(msg)
@@ -201,6 +204,17 @@ def _card(opt, rank, nearby, state):
             st.caption(t("card.mandi_now", p=rupees(mandi["modal"]), month=mandi["month"]))
         st.write(_risk_text(opt))
         st.caption(f"{t('card.fit')}: {_dots(opt.fit_dots)}")
+        if opt.climate:
+            c = opt.climate
+            if c["p_poor"] > 0:
+                st.write(t("card.dry_years", n=round(c["p_poor"] * c["n_years"]), total=c["n_years"]))
+            try:
+                hist = water_mod.fetch_history(round(_farm()["lat"], 2), round(_farm()["lon"], 2))
+                share, hits, total = water_mod.heavy_rain_share(hist, opt.row["_season"], int(opt.row["duration_days"]))
+                if share >= 0.15:
+                    st.write(t("card.heavy_rain", n=hits, total=total))
+            except Exception:
+                pass
         if opt.glut_note:
             st.write("🚜 " + opt.glut_note)
         buyers = nearby.buyers.get(opt.crop_id, [])
@@ -235,6 +249,15 @@ def screen_crops(user):
         st.warning(t("p2.climate_fail"))
     farm["climate"] = climate
 
+    taw = water_mod.SOIL_TAW[water_mod.SOIL_OF_TYPE.get(farm.get("soil"), "unknown")]
+    ctx = {"lat": round(farm["lat"], 2), "lon": round(farm["lon"], 2), "taw": taw}
+    try:
+        trend = water_mod.climate_trend(water_mod.fetch_history(ctx["lat"], ctx["lon"]), season, 120)
+        if trend:
+            st.caption("📈 " + t("p2.trend", recent=trend["recent_years"], years=trend["years"],
+                                 rain=trend["rain_change_pct"], et0=trend["et0_change_pct"]))
+    except Exception:
+        pass
     include_perennial = st.checkbox(t("p2.orchard"), value=False, key="plan_perennial")
     nearby = plans.nearby_signals(farm["lat"], farm["lon"], season, _known_ids(), exclude_farmer=user["id"])
     farm["nearby"] = nearby
@@ -244,7 +267,8 @@ def screen_crops(user):
         for plot in _plots():
             options[plot.name] = rec.rank_crops(
                 farm.get("state") or "*", season, plot, climate, farm["ph"], nearby,
-                risk_appetite=farm["appetite"], district=farm.get("district"), include_perennial=include_perennial)
+                risk_appetite=farm["appetite"], district=farm.get("district"), include_perennial=include_perennial,
+                climate_ctx=ctx)
     except Exception as e:
         st.error(f"Crop data is not ready: {e}")
         if st.button(t("btn.back")):
@@ -365,8 +389,101 @@ def screen_plan(user, respond_fn):
                 st.warning(t("warn.over_demand", crop=_crop_name(cid), q=round(demand)))
 
         if st.button(t("btn.save_plan"), type="primary", use_container_width=True):
-            plans.save_plan(user["id"], farm["lat"], farm["lon"], farm["season"], plan)
+            plans.save_plan(user["id"], farm["lat"], farm["lon"], farm["season"], plan,
+                            meta={"water": farm["water"], "soil": farm.get("soil"), "state": farm.get("state")})
             st.success(t("msg.saved"))
+
+
+    # Water, power and CO2 against the usual practice, for crops on watered land
+    watered = [r for r in rows if r.plot == "water"]
+    if watered:
+        with st.expander(t("plan.water_title")):
+            try:
+                taw = water_mod.SOIL_TAW[water_mod.SOIL_OF_TYPE.get(farm.get("soil"), "unknown")]
+                lat2, lon2 = round(farm["lat"], 2), round(farm["lon"], 2)
+                shown_note = False
+                for r in watered:
+                    o = by_key[(r.plot, r.crop_id)]
+                    cmp = water_mod.compare_practice(lat2, lon2, r.crop_id, farm["season"], int(o.row["duration_days"]),
+                                                     taw, farm["water"], acres=r.acres)
+                    if not cmp:
+                        continue
+                    if not shown_note:
+                        st.caption(t("plan.water_note", n=cmp["n_years"], head=int(water_mod.PUMP_HEAD_M),
+                                     eff=int(water_mod.PUMP_EFFICIENCY * 100)))
+                        shown_note = True
+                    b, f, e = cmp["baseline"], cmp["sched_flood"], cmp["sched_efficient"]
+                    sv = lambda a: (t("plan.water_less", x=round(a["saved_pct"])) if a["saved_pct"] >= 0
+                                    else t("plan.water_more", x=round(-a["saved_pct"])))
+                    st.markdown("**" + t("plan.water_row", crop=_crop_name(r.crop_id), acres=f"{r.acres:g}") + "**")
+                    st.write("• " + t("plan.water_base", m3=rupees(b["m3"]), kwh=rupees(b["kwh"]), y=round(100 * b["rel_yield"])))
+                    st.write("• " + t("plan.water_l1", m3=rupees(f["m3"]), saved=sv(f), y=round(100 * f["rel_yield"])))
+                    st.write("• " + t("plan.water_l2", m3=rupees(e["m3"]), saved=sv(e), kwh=rupees(e["kwh"]),
+                                      co2=rupees(e["co2_kg"]), saved_kwh=rupees(max(0, e["saved_kwh"])),
+                                      y=round(100 * e["rel_yield"])))
+            except Exception:
+                st.caption("—")
+
+
+        with st.expander(t("pump.title")):
+            wc = sorted({r.crop_id for r in watered}, key=_crop_name)
+            pc = st.selectbox(t("p2.choose"), wc, format_func=_crop_name, key="pump_crop")
+            pr = next(r for r in watered if r.crop_id == pc)
+            po = by_key[(pr.plot, pr.crop_id)]
+            q1, q2, q3 = st.columns(3)
+            hours = q1.number_input(t("pump.hours"), min_value=2.0, max_value=24.0, value=8.0, step=1.0, key="pump_hours",
+                                    help=t("pump.hours_help"))
+            head = q2.number_input(t("pump.head"), min_value=5.0, max_value=200.0, value=float(water_mod.PUMP_HEAD_M), step=5.0, key="pump_head")
+            drip = q3.checkbox(t("pump.drip"), value=False, key="pump_drip")
+            try:
+                peak = pump_mod.peak_demand_mm_day(farm["lat"], farm["lon"], pc, farm["season"], int(po.row["duration_days"]))
+                sz = pump_mod.size_pump(pr.acres, peak, hours, head, water_mod.PUMP_EFFICIENCY, 0.9 if drip else 0.6)
+                st.write(t("pump.result", acres=f"{pr.acres:g}", peak=f"{peak:.1f}", m3=rupees(sz["daily_m3"]),
+                           hp=sz["hp"], kwp=sz["array_kwp"]))
+                st.caption(t("pump.assume"))
+                cur = st.number_input(t("pump.current_hp"), min_value=0.0, max_value=50.0, value=0.0, step=0.5, key="pump_cur")
+                if cur and cur > sz["hp"]:
+                    st.warning(t("pump.oversized", cur=f"{cur:g}", hp=sz["hp"]))
+                st.markdown(f"**{t('pump.payback_title')}**")
+                st.caption(t("pump.payback_help"))
+                src = st.radio(t("pump.source"), ["grid", "diesel"], format_func=lambda k: t(f"pump.src_{k}"), horizontal=True, key="pump_src")
+                price_label = t("pump.tariff") if src == "grid" else t("pump.diesel_price")
+                unit_price = st.number_input(price_label, min_value=0.0, value=0.0, step=1.0, key="pump_price")
+                cost = st.number_input(t("pump.cost"), min_value=0.0, value=0.0, step=10000.0, key="pump_cost")
+                if cost > 0 and unit_price > 0:
+                    taw = water_mod.SOIL_TAW[water_mod.SOIL_OF_TYPE.get(farm.get("soil"), "unknown")]
+                    cmp = water_mod.compare_practice(round(farm["lat"], 2), round(farm["lon"], 2), pc, farm["season"],
+                                                     int(po.row["duration_days"]), taw, farm["water"], acres=pr.acres,
+                                                     head_m=head)
+                    kwh = cmp["sched_efficient" if drip else "sched_flood"]["kwh"]
+                    pb = pump_mod.solar_payback(cost, kwh, src, unit_price if src == "grid" else None,
+                                                unit_price if src == "diesel" else None)
+                    if pb["payback_years"]:
+                        st.success(t("pump.payback_result", own=inr(pb["farmer_share_rs"]), sub=inr(pb["subsidy_rs"]),
+                                     save=inr(pb["annual_saving_rs"]), yrs=f"{pb['payback_years']:.1f}",
+                                     co2=rupees(pb["annual_co2_kg"])))
+            except Exception:
+                st.caption("—")
+
+        with st.expander(t("irrig.title")):
+            crop_opts = sorted({r.crop_id for r in watered}, key=_crop_name)
+            ic = st.selectbox(t("p2.choose"), crop_opts, format_func=_crop_name, key="irrig_crop")
+            d_since = st.number_input(t("irrig.days"), min_value=0, max_value=400, value=0, key="irrig_days")
+            last = st.number_input(t("irrig.last"), min_value=0, max_value=60, value=0, key="irrig_last")
+            if st.button(t("irrig.go"), key="irrig_go"):
+                try:
+                    o = next(o for o in options["water"] if o.crop_id == ic)
+                    taw = water_mod.SOIL_TAW[water_mod.SOIL_OF_TYPE.get(farm.get("soil"), "unknown")]
+                    adv = water_mod.next_irrigation_advice(
+                        farm["lat"], farm["lon"], ic, int(d_since), int(o.row["duration_days"]), taw,
+                        last_irrigation_days_ago=int(last) or None)
+                    if adv["action"] == "irrigate":
+                        st.success(t("irrig.irrigate", when=adv["when"].isoformat(), mm=adv["net_mm"]))
+                    else:
+                        st.info(t("irrig.wait"))
+                    st.caption(t("irrig.rain", p=max(d["p_rain"] for d in adv["plan"])))
+                except Exception:
+                    st.error(t("ask.error"))
 
     # Buyers
     st.markdown(f"### {t('buyer.title')}")

@@ -17,7 +17,7 @@ import seaborn as sns
 import plotly.express as px
 import plotly.graph_objects as go
 from streamlit_js_eval import streamlit_js_eval, copy_to_clipboard, create_share_link, get_geolocation
-from krishi import crop_view, plan_view, assistant_view, plans as plans_mod, geo, auth, crop_table
+from krishi import crop_view, plan_view, assistant_view, village_view, plans as plans_mod, geo, auth, crop_table
 from krishi import weather as wx
 from krishi.i18n import t, current_lang, set_lang, UI_LANGUAGES, rupees
 from krishi.ui import apply_theme, hero
@@ -736,10 +736,10 @@ with st.sidebar:
 # ---------- Top navigation (replaces the old sidebar menu) ----------
 NAV_VIEWS = {
     "plan": "crop_prediction", "commitments": "supply_commitments", "needs": "supply_commitments",
-    "post": "vendor_post", "ask": "assistant", "group": "communities", "prices": "market_prices", "tips": "farming_tips",
+    "post": "vendor_post", "ask": "assistant", "village": "village", "group": "communities", "prices": "market_prices", "tips": "farming_tips",
 }
-NAV_FARMER = ["plan", "ask", "commitments", "group", "prices", "tips"]
-NAV_VENDOR = ["needs", "post", "group", "prices", "tips"]
+NAV_FARMER = ["plan", "ask", "village", "commitments", "group", "prices", "tips"]
+NAV_VENDOR = ["needs", "post", "village", "group", "prices", "tips"]
 
 
 def render_nav(user_type):
@@ -997,6 +997,9 @@ else:
             assistant_view.render(user, TOGETHER_API_KEY)
         else:
             st.info("The voice assistant is for farmers.")
+
+    elif st.session_state.view == "village":
+        village_view.render(user)
 
     elif st.session_state.view == "vendor_post":
         st.subheader(t("v.title"))

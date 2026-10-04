@@ -1,0 +1,586 @@
+{
+ "site": {
+  "lat": 20.39,
+  "lon": 78.13,
+  "soil": "black",
+  "taw_mm_per_m": 170,
+  "seasons": "1995-2024",
+  "generated": "2026-10-04"
+ },
+ "s1": [
+  {
+   "crop": "wheat",
+   "season": "Rabi",
+   "practice_irrigations": 5,
+   "baseline_m3": 1214.1,
+   "baseline_yield": 0.9316706076710031,
+   "baseline_kwh": 378.10542857142855,
+   "flood_m3": 1606.296004446554,
+   "flood_yield": 0.9993973180353584,
+   "flood_saved_pct": -32.30343500918821,
+   "flood_saved_p10": -96.11767211124697,
+   "flood_saved_p90": -30.492922753311035,
+   "eff_m3": 1070.8640029643693,
+   "eff_yield": 0.9993973180353584,
+   "eff_saved_pct": 11.797709993874525,
+   "eff_saved_p10": -30.745114740831315,
+   "eff_saved_p90": 13.004718164459309,
+   "eff_saved_kwh": 44.607781933953504,
+   "eff_saved_co2_kg": 32.42985746598421,
+   "yield_change_flood_pct": 7.269383600461435,
+   "yield_change_eff_pct": 7.269383600461435,
+   "years": 30
+  },
+  {
+   "crop": "chana",
+   "season": "Rabi",
+   "practice_irrigations": 2,
+   "baseline_m3": 485.64,
+   "baseline_yield": 0.6303745610554186,
+   "baseline_kwh": 151.24217142857142,
+   "flood_m3": 1730.2118047186161,
+   "flood_yield": 0.9988235963180776,
+   "flood_saved_pct": -256.27456649341406,
+   "flood_saved_p10": -270.2312101546109,
+   "flood_saved_p90": -177.48268229296878,
+   "eff_m3": 1153.4745364790772,
+   "eff_yield": 0.9988235963180776,
+   "eff_saved_pct": -137.516377662276,
+   "eff_saved_p10": -146.82080676974053,
+   "eff_saved_p90": -84.98845486197914,
+   "eff_saved_kwh": -207.9827556463412,
+   "eff_saved_co2_kg": -151.20346335489003,
+   "yield_change_flood_pct": 58.44922337059019,
+   "yield_change_eff_pct": 58.44922337059019,
+   "years": 30
+  },
+  {
+   "crop": "mustard",
+   "season": "Rabi",
+   "practice_irrigations": 2,
+   "baseline_m3": 485.64,
+   "baseline_yield": 0.6635236547768779,
+   "baseline_kwh": 151.24217142857142,
+   "flood_m3": 2149.2769765734674,
+   "flood_yield": 0.9993047382428197,
+   "flood_saved_pct": -342.56588760675965,
+   "flood_saved_p10": -436.90338257201137,
+   "flood_saved_p90": -252.99067615569564,
+   "eff_m3": 1432.8513177156449,
+   "eff_yield": 0.9993047382428197,
+   "eff_saved_pct": -195.04392507117305,
+   "eff_saved_p10": -257.93558838134084,
+   "eff_saved_p90": -135.32711743713043,
+   "eff_saved_kwh": -294.988667517158,
+   "eff_saved_co2_kg": -214.45676128497385,
+   "yield_change_flood_pct": 50.60574420347598,
+   "yield_change_eff_pct": 50.60574420347598,
+   "years": 30
+  },
+  {
+   "crop": "onion",
+   "season": "Rabi",
+   "practice_irrigations": 12,
+   "baseline_m3": 2913.8399999999997,
+   "baseline_yield": 0.7509182673281374,
+   "baseline_kwh": 907.4530285714285,
+   "flood_m3": 3486.0894351848115,
+   "flood_yield": 0.9576929992250259,
+   "flood_saved_pct": -19.639013644702928,
+   "flood_saved_p10": -30.24722617524303,
+   "flood_saved_p90": -1.0661879429234151,
+   "eff_m3": 2324.059623456541,
+   "eff_yield": 0.9576929992250259,
+   "eff_saved_pct": 20.240657570198046,
+   "eff_saved_p10": 13.168515883171318,
+   "eff_saved_p90": 32.62254137138438,
+   "eff_saved_kwh": 183.67446012353423,
+   "eff_saved_co2_kg": 133.53133250980943,
+   "yield_change_flood_pct": 27.536250067882797,
+   "yield_change_eff_pct": 27.536250067882797,
+   "years": 30
+  },
+  {
+   "crop": "tomato",
+   "season": "Rabi",
+   "practice_irrigations": 12,
+   "baseline_m3": 2913.8399999999997,
+   "baseline_yield": 0.99782670710461,
+   "baseline_kwh": 907.4530285714285,
+   "flood_m3": 1989.8543029288642,
+   "flood_yield": 0.9990128994707508,
+   "flood_saved_pct": 31.710241367787372,
+   "flood_saved_p10": 22.83820636634655,
+   "flood_saved_p90": 48.268380859243834,
+   "eff_m3": 1326.5695352859093,
+   "eff_yield": 0.9990128994707508,
+   "eff_saved_pct": 54.47349424519159,
+   "eff_saved_p10": 48.558804244231034,
+   "eff_saved_p90": 65.51225390616256,
+   "eff_saved_kwh": 494.32137329667387,
+   "eff_saved_co2_kg": 359.3716383866819,
+   "yield_change_flood_pct": 0.11887759244115491,
+   "yield_change_eff_pct": 0.11887759244115491,
+   "years": 30
+  },
+  {
+   "crop": "cotton",
+   "season": "Kharif",
+   "practice_irrigations": 6,
+   "baseline_m3": 1456.9199999999998,
+   "baseline_yield": 1.0,
+   "baseline_kwh": 453.72651428571425,
+   "flood_m3": 1017.35152015,
+   "flood_yield": 0.9997440034198568,
+   "flood_saved_pct": 30.171078703703692,
+   "flood_saved_p10": 21.013340597405232,
+   "flood_saved_p90": 100.0,
+   "eff_m3": 678.2343467666667,
+   "eff_yield": 0.9997440034198568,
+   "eff_saved_pct": 53.44738580246913,
+   "eff_saved_p10": 47.34222706493683,
+   "eff_saved_p90": 100.0,
+   "eff_saved_kwh": 242.5049605783809,
+   "eff_saved_co2_kg": 176.3011063404829,
+   "yield_change_flood_pct": -0.025599658014319182,
+   "yield_change_eff_pct": -0.025599658014319182,
+   "years": 30
+  },
+  {
+   "crop": "tur",
+   "season": "Kharif",
+   "practice_irrigations": 2,
+   "baseline_m3": 485.64,
+   "baseline_yield": 0.8576330764044506,
+   "baseline_kwh": 151.24217142857142,
+   "flood_m3": 1188.4943785083935,
+   "flood_yield": 0.9994714353964878,
+   "flood_saved_pct": -144.72744800848233,
+   "flood_saved_p10": -265.9061844002809,
+   "flood_saved_p90": -138.64613148120918,
+   "eff_m3": 792.3295856722623,
+   "eff_yield": 0.9994714353964878,
+   "eff_saved_pct": -63.15163200565487,
+   "eff_saved_p10": -143.93745626685393,
+   "eff_saved_p90": -59.097420987472766,
+   "eff_saved_kwh": -95.51189953793312,
+   "eff_saved_co2_kg": -69.43715096407738,
+   "yield_change_flood_pct": 16.53834989511851,
+   "yield_change_eff_pct": 16.53834989511851,
+   "years": 30
+  }
+ ],
+ "s2": [
+  {
+   "pump_efficiency": 0.25,
+   "head_m": 30,
+   "saved_kwh": 254.63020860729995,
+   "saved_co2_kg": 185.11616165750704,
+   "baseline_kwh": 476.41283999999996
+  },
+  {
+   "pump_efficiency": 0.25,
+   "head_m": 40,
+   "saved_kwh": 339.5069448097332,
+   "saved_co2_kg": 246.82154887667602,
+   "baseline_kwh": 635.2171199999999
+  },
+  {
+   "pump_efficiency": 0.25,
+   "head_m": 60,
+   "saved_kwh": 509.2604172145999,
+   "saved_co2_kg": 370.23232331501407,
+   "baseline_kwh": 952.8256799999999
+  },
+  {
+   "pump_efficiency": 0.35,
+   "head_m": 30,
+   "saved_kwh": 181.8787204337857,
+   "saved_co2_kg": 132.22582975536218,
+   "baseline_kwh": 340.2948857142857
+  },
+  {
+   "pump_efficiency": 0.35,
+   "head_m": 40,
+   "saved_kwh": 242.5049605783809,
+   "saved_co2_kg": 176.3011063404829,
+   "baseline_kwh": 453.72651428571425
+  },
+  {
+   "pump_efficiency": 0.35,
+   "head_m": 60,
+   "saved_kwh": 363.7574408675714,
+   "saved_co2_kg": 264.45165951072437,
+   "baseline_kwh": 680.5897714285715
+  },
+  {
+   "pump_efficiency": 0.5,
+   "head_m": 30,
+   "saved_kwh": 127.31510430364997,
+   "saved_co2_kg": 92.55808082875352,
+   "baseline_kwh": 238.20641999999998
+  },
+  {
+   "pump_efficiency": 0.5,
+   "head_m": 40,
+   "saved_kwh": 169.7534724048666,
+   "saved_co2_kg": 123.41077443833801,
+   "baseline_kwh": 317.60855999999995
+  },
+  {
+   "pump_efficiency": 0.5,
+   "head_m": 60,
+   "saved_kwh": 254.63020860729995,
+   "saved_co2_kg": 185.11616165750704,
+   "baseline_kwh": 476.41283999999996
+  }
+ ],
+ "s3": [
+  {
+   "crop": "coriander",
+   "irrigation_m3_per_acre": 495.9489089786359,
+   "usual_profit": -3000.0,
+   "bad_year": -15000.0,
+   "rs_per_m3": -6.049010181670208,
+   "estimated_numbers": true,
+   "risk": "high",
+   "p_poor": 0.0
+  },
+  {
+   "crop": "wheat",
+   "irrigation_m3_per_acre": 1070.8640029643693,
+   "usual_profit": -5000.0,
+   "bad_year": -14000.0,
+   "rs_per_m3": -4.669126972387701,
+   "estimated_numbers": true,
+   "risk": "high",
+   "p_poor": 0.0
+  },
+  {
+   "crop": "maize",
+   "irrigation_m3_per_acre": 1111.1336909217614,
+   "usual_profit": -9000.0,
+   "bad_year": -22000.0,
+   "rs_per_m3": -8.099835396525403,
+   "estimated_numbers": true,
+   "risk": "high",
+   "p_poor": 0.0
+  },
+  {
+   "crop": "chana",
+   "irrigation_m3_per_acre": 1153.4745364790772,
+   "usual_profit": 9000.0,
+   "bad_year": 3000.0,
+   "rs_per_m3": 7.802512942740848,
+   "estimated_numbers": false,
+   "risk": "low",
+   "p_poor": 0.0
+  },
+  {
+   "crop": "brinjal",
+   "irrigation_m3_per_acre": 1158.5600447949862,
+   "usual_profit": 155000.0,
+   "bad_year": 101000.0,
+   "rs_per_m3": 133.78676461039888,
+   "estimated_numbers": true,
+   "risk": "medium",
+   "p_poor": 0.0
+  },
+  {
+   "crop": "green_chilli",
+   "irrigation_m3_per_acre": 1227.1687143190322,
+   "usual_profit": 35000.0,
+   "bad_year": -19000.0,
+   "rs_per_m3": 28.52093570477132,
+   "estimated_numbers": true,
+   "risk": "medium",
+   "p_poor": 0.0
+  },
+  {
+   "crop": "jowar",
+   "irrigation_m3_per_acre": 1272.652284405134,
+   "usual_profit": -7000.0,
+   "bad_year": -11000.0,
+   "rs_per_m3": -5.500324075772163,
+   "estimated_numbers": false,
+   "risk": "high",
+   "p_poor": 0.0
+  },
+  {
+   "crop": "cabbage",
+   "irrigation_m3_per_acre": 1284.4157619963573,
+   "usual_profit": 7000.0,
+   "bad_year": -13000.0,
+   "rs_per_m3": 5.449948690383521,
+   "estimated_numbers": true,
+   "risk": "high",
+   "p_poor": 0.0
+  },
+  {
+   "crop": "tomato",
+   "irrigation_m3_per_acre": 1326.5695352859093,
+   "usual_profit": 73000.0,
+   "bad_year": -27000.0,
+   "rs_per_m3": 55.02915456615446,
+   "estimated_numbers": true,
+   "risk": "high",
+   "p_poor": 0.0
+  },
+  {
+   "crop": "cauliflower",
+   "irrigation_m3_per_acre": 1393.4399618795655,
+   "usual_profit": 28000.0,
+   "bad_year": 3000.0,
+   "rs_per_m3": 20.09415602106869,
+   "estimated_numbers": true,
+   "risk": "medium",
+   "p_poor": 0.0
+  },
+  {
+   "crop": "mustard",
+   "irrigation_m3_per_acre": 1432.8513177156449,
+   "usual_profit": 10000.0,
+   "bad_year": 6000.0,
+   "rs_per_m3": 6.979091184382426,
+   "estimated_numbers": false,
+   "risk": "low",
+   "p_poor": 0.0
+  },
+  {
+   "crop": "masoor",
+   "irrigation_m3_per_acre": 1507.0702864334921,
+   "usual_profit": 22000.0,
+   "bad_year": 16000.0,
+   "rs_per_m3": 14.597859302278051,
+   "estimated_numbers": false,
+   "risk": "low",
+   "p_poor": 0.0
+  },
+  {
+   "crop": "onion",
+   "irrigation_m3_per_acre": 2324.059623456541,
+   "usual_profit": -10000.0,
+   "bad_year": -42000.0,
+   "rs_per_m3": -4.302815598649376,
+   "estimated_numbers": true,
+   "risk": "high",
+   "p_poor": 0.0
+  }
+ ],
+ "s4": {
+  "planned_m3": 43084.88772854643,
+  "thriftiest_m3": 36092.51078220601,
+  "thirstiest_m3": 46363.08092419388,
+  "farmers": 40,
+  "irrigated_acres": 39.5,
+  "detail": {
+   "till_mar": {
+    "acres": 15.5,
+    "min_mm": 285.01965319473123,
+    "max_mm": 372.3919660077816,
+    "n_crops": 3
+   },
+   "all_year": {
+    "acres": 10.5,
+    "min_mm": 285.01965319473123,
+    "max_mm": 372.3919660077816,
+    "n_crops": 3
+   },
+   "till_dec": {
+    "acres": 13.5,
+    "min_mm": 111.69083333333334,
+    "max_mm": 131.4051282051282,
+    "n_crops": 3
+   }
+  },
+  "demo": true
+ },
+ "s5": [
+  {
+   "crop": "banana",
+   "loss_frac": 0.076,
+   "revenue_per_acre": 335366.22000000003,
+   "value_at_stake": 25487.832720000002,
+   "perishable": true,
+   "est": true
+  },
+  {
+   "crop": "tomato",
+   "loss_frac": 0.116,
+   "revenue_per_acre": 213095.0,
+   "value_at_stake": 24719.02,
+   "perishable": true,
+   "est": true
+  },
+  {
+   "crop": "brinjal",
+   "loss_frac": 0.08,
+   "revenue_per_acre": 231301.80000000002,
+   "value_at_stake": 18504.144,
+   "perishable": true,
+   "est": true
+  },
+  {
+   "crop": "green_chilli",
+   "loss_frac": 0.08,
+   "revenue_per_acre": 144072.46,
+   "value_at_stake": 11525.7968,
+   "perishable": true,
+   "est": true
+  },
+  {
+   "crop": "potato",
+   "loss_frac": 0.08,
+   "revenue_per_acre": 127068.56000000001,
+   "value_at_stake": 10165.484800000002,
+   "perishable": false,
+   "est": true
+  },
+  {
+   "crop": "garlic",
+   "loss_frac": 0.06,
+   "revenue_per_acre": 136923.6,
+   "value_at_stake": 8215.416,
+   "perishable": false,
+   "est": true
+  },
+  {
+   "crop": "sugarcane",
+   "loss_frac": 0.0734,
+   "revenue_per_acre": 108995.16,
+   "value_at_stake": 8000.244744000001,
+   "perishable": false,
+   "est": false
+  },
+  {
+   "crop": "cauliflower",
+   "loss_frac": 0.08,
+   "revenue_per_acre": 82921.44,
+   "value_at_stake": 6633.715200000001,
+   "perishable": true,
+   "est": true
+  },
+  {
+   "crop": "onion",
+   "loss_frac": 0.073,
+   "revenue_per_acre": 69714.84,
+   "value_at_stake": 5089.183319999999,
+   "perishable": false,
+   "est": true
+  },
+  {
+   "crop": "cabbage",
+   "loss_frac": 0.082,
+   "revenue_per_acre": 60030.0,
+   "value_at_stake": 4922.46,
+   "perishable": true,
+   "est": true
+  },
+  {
+   "crop": "coriander",
+   "loss_frac": 0.1,
+   "revenue_per_acre": 35850.1,
+   "value_at_stake": 3585.01,
+   "perishable": true,
+   "est": true
+  },
+  {
+   "crop": "masoor",
+   "loss_frac": 0.0674,
+   "revenue_per_acre": 24434.280000000006,
+   "value_at_stake": 1646.8704720000005,
+   "perishable": false,
+   "est": false
+  },
+  {
+   "crop": "chana",
+   "loss_frac": 0.0674,
+   "revenue_per_acre": 21540.420000000002,
+   "value_at_stake": 1451.8243080000002,
+   "perishable": false,
+   "est": false
+  },
+  {
+   "crop": "mustard",
+   "loss_frac": 0.0446,
+   "revenue_per_acre": 31298.4,
+   "value_at_stake": 1395.90864,
+   "perishable": false,
+   "est": false
+  },
+  {
+   "crop": "wheat",
+   "loss_frac": 0.0417,
+   "revenue_per_acre": 21285.120000000003,
+   "value_at_stake": 887.5895040000001,
+   "perishable": false,
+   "est": true
+  },
+  {
+   "crop": "maize",
+   "loss_frac": 0.0389,
+   "revenue_per_acre": 21711.999999999996,
+   "value_at_stake": 844.5967999999998,
+   "perishable": false,
+   "est": true
+  },
+  {
+   "crop": "jowar",
+   "loss_frac": 0.0592,
+   "revenue_per_acre": 10127.36,
+   "value_at_stake": 599.539712,
+   "perishable": false,
+   "est": false
+  }
+ ],
+ "s6": [
+  {
+   "crop": "wheat",
+   "method": "flood",
+   "peak_mm_day": 5.152,
+   "hp": 5,
+   "flow_m3h": 8.687560000000001,
+   "array_kwp": 4.7
+  },
+  {
+   "crop": "wheat",
+   "method": "drip",
+   "peak_mm_day": 5.152,
+   "hp": 3,
+   "flow_m3h": 5.791706666666666,
+   "array_kwp": 2.8
+  },
+  {
+   "crop": "cotton",
+   "method": "flood",
+   "peak_mm_day": 5.746925000000001,
+   "hp": 5,
+   "flow_m3h": 9.690752281250003,
+   "array_kwp": 4.7
+  },
+  {
+   "crop": "cotton",
+   "method": "drip",
+   "peak_mm_day": 5.746925000000001,
+   "hp": 3,
+   "flow_m3h": 6.460501520833334,
+   "array_kwp": 2.8
+  },
+  {
+   "crop": "tomato",
+   "method": "flood",
+   "peak_mm_day": 4.8645000000000005,
+   "hp": 5,
+   "flow_m3h": 8.202763125,
+   "array_kwp": 4.7
+  },
+  {
+   "crop": "tomato",
+   "method": "drip",
+   "peak_mm_day": 4.8645000000000005,
+   "hp": 3,
+   "flow_m3h": 5.46850875,
+   "array_kwp": 2.8
+  }
+ ]
+}

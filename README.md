@@ -22,6 +22,7 @@ Old accounts (no phone/PIN) are under *Login → Demo accounts*. New accounts us
 | `live_prices.py` | Official Agmarknet monthly prices and arrivals via CEDA Ashoka's open API (no key). Optional data.gov.in via `DATA_GOV_IN_API_KEY`. |
 | `plans.py` | Planting registry (`plans.json`) and nearby signals: other farmers' planned acres, open vendor demand. |
 | `weather.py`, `geo.py` | ERA5 season climate for the farm, village search, state/district lookup. |
+| `water.py`, `pump.py`, `village.py`, `village_view.py` | **Climate risk and water**: FAO-56 daily soil-water balance over the last 30 seasons (drought, heavy rain, trend), irrigation schedule and "water today?" from the forecast, pump energy and CO₂, pump sizing and solar payback, and the village water roll-up. Data: `data/crop_water.csv` (FAO-56 / FAO-33). |
 | `plan_view.py`, `i18n.py`, `locales/` | Farmer screens; English / Hindi / Marathi UI strings. |
 | `languages.py`, `bhashini.py` | 20 Indian languages + English; which provider covers typed text / voice in / voice out. Bhashini (free account) adds voice for all 22 scheduled languages; adapter written from its docs and **not yet tested against the live service**. |
 | `assistant.py`, `assistant_view.py` | **Ask** tab: speak or type in your language; speech-to-text (Whisper on Together, or Google Cloud Speech-to-Text if `GOOGLE_STT_API_KEY` is set in `.streamlit/secrets.toml` or the environment) → answer with your farm, plan and nearby buyers as context and the last 14 messages as memory → reply translated and spoken. Chats saved per account in `chats.json` (text only). |
@@ -47,3 +48,9 @@ Old accounts (no phone/PIN) are under *Login → Demo accounts*. New accounts us
 | **Not supported** | Bodo, Kashmiri (Google Translate cannot translate them). |
 
 To turn on voice for the text-only languages: copy `.streamlit/secrets.toml.example` to `secrets.toml` and add your free Bhashini keys.
+
+## Submission pack and reports
+
+- `docs/` holds the write-up, architecture diagram, design artefacts, and deployment plan (start at `docs/README.md`).
+- `reports/impact_report.md` is the quantified-benefit simulation; regenerate with `py -3.11 scripts/run_impact.py`.
+- `scripts/seed_demo_village.py` seeds a SYNTHETIC village into `plans.json` (flagged `demo`, excluded from recommendations) so the Village screen can be demonstrated; remove with `--clear`.
