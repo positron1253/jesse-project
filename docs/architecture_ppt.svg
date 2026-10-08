@@ -1,0 +1,177 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080" font-family="Segoe UI, Arial, sans-serif">
+<defs>
+<marker id="e-data" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/></marker>
+<marker id="s-data" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/></marker>
+<marker id="e-money" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#16a34a"/></marker>
+<marker id="s-money" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#16a34a"/></marker>
+<marker id="e-water" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#0891b2"/></marker>
+<marker id="s-water" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#0891b2"/></marker>
+<marker id="e-energy" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#d97706"/></marker>
+<marker id="s-energy" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#d97706"/></marker>
+</defs>
+<rect width="1920" height="1080" fill="#f8fafc"/>
+<text x="40" y="52" font-size="38" font-weight="800" fill="#0f172a" text-anchor="start">Krishi Sahay: system architecture</text>
+<text x="40" y="84" font-size="20" font-weight="400" fill="#475569" text-anchor="start">Farm location + soil + 30 years of weather  →  best crop, water, energy and a buyer within 50 km, in the farmer's language</text>
+<text x="40" y="128" font-size="17" font-weight="700" fill="#64748b" text-anchor="start">USERS</text>
+<text x="380" y="128" font-size="17" font-weight="700" fill="#64748b" text-anchor="start">APP  (Streamlit, 20 languages, audio)</text>
+<text x="890" y="128" font-size="17" font-weight="700" fill="#64748b" text-anchor="start">DECISION ENGINES  (Python)</text>
+<text x="1470" y="128" font-size="17" font-weight="700" fill="#64748b" text-anchor="start">EXTERNAL DATA AND AI</text>
+<rect x="40" y="142" width="250" height="308" rx="12" fill="#eef2ff" stroke="#6366f1" stroke-width="2"/>
+<text x="56" y="174" font-size="22" font-weight="700" fill="#312e81" text-anchor="start">Farmer</text>
+<text x="56" y="200" font-size="18" font-weight="400" fill="#374151" text-anchor="start">phone + PIN login</text>
+<text x="56" y="224" font-size="18" font-weight="400" fill="#374151" text-anchor="start">GPS or village search</text>
+<text x="56" y="248" font-size="18" font-weight="400" fill="#374151" text-anchor="start">soil test (optional)</text>
+<text x="56" y="272" font-size="18" font-weight="400" fill="#374151" text-anchor="start">sowing date, crops, acres</text>
+<text x="56" y="296" font-size="18" font-weight="400" fill="#374151" text-anchor="start">voice chat</text>
+<rect x="40" y="466" width="250" height="92" rx="12" fill="#eef2ff" stroke="#6366f1" stroke-width="2"/>
+<text x="56" y="498" font-size="22" font-weight="700" fill="#312e81" text-anchor="start">Buyer / vendor</text>
+<text x="56" y="524" font-size="18" font-weight="400" fill="#374151" text-anchor="start">posts priced needs</text>
+<text x="56" y="548" font-size="18" font-weight="400" fill="#374151" text-anchor="start">commits to farmers</text>
+<rect x="40" y="574" width="250" height="92" rx="12" fill="#eef2ff" stroke="#6366f1" stroke-width="2"/>
+<text x="56" y="606" font-size="22" font-weight="700" fill="#312e81" text-anchor="start">Panchayat / FPO</text>
+<text x="56" y="632" font-size="18" font-weight="400" fill="#374151" text-anchor="start">water available</text>
+<text x="56" y="656" font-size="18" font-weight="400" fill="#374151" text-anchor="start">(from water plan)</text>
+<rect x="40" y="682" width="250" height="92" rx="12" fill="#eef2ff" stroke="#6366f1" stroke-width="2"/>
+<text x="56" y="714" font-size="22" font-weight="700" fill="#312e81" text-anchor="start">Any user</text>
+<text x="56" y="740" font-size="18" font-weight="400" fill="#374151" text-anchor="start">speaks and listens</text>
+<text x="56" y="764" font-size="18" font-weight="400" fill="#374151" text-anchor="start">in own language</text>
+<rect x="380" y="142" width="400" height="92" rx="12" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+<text x="396" y="174" font-size="22" font-weight="700" fill="#111827" text-anchor="start">1  Farm location and soil</text>
+<text x="396" y="200" font-size="18" font-weight="400" fill="#374151" text-anchor="start">GPS or village search; soil from</text>
+<text x="396" y="224" font-size="18" font-weight="400" fill="#374151" text-anchor="start">test numbers or satellite map</text>
+<rect x="380" y="250" width="400" height="92" rx="12" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+<text x="396" y="282" font-size="22" font-weight="700" fill="#111827" text-anchor="start">2  What to grow</text>
+<text x="396" y="308" font-size="18" font-weight="400" fill="#374151" text-anchor="start">ranked crops: usual-year and</text>
+<text x="396" y="332" font-size="18" font-weight="400" fill="#374151" text-anchor="start">bad-year profit, risk light</text>
+<rect x="380" y="358" width="400" height="92" rx="12" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+<text x="396" y="390" font-size="22" font-weight="700" fill="#111827" text-anchor="start">3  My farm</text>
+<text x="396" y="416" font-size="18" font-weight="400" fill="#374151" text-anchor="start">irrigation system, sowing date,</text>
+<text x="396" y="440" font-size="18" font-weight="400" fill="#374151" text-anchor="start">watering schedule, pump log</text>
+<rect x="380" y="466" width="400" height="92" rx="12" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+<text x="396" y="498" font-size="22" font-weight="700" fill="#111827" text-anchor="start">4  Sell</text>
+<text x="396" y="524" font-size="18" font-weight="400" fill="#374151" text-anchor="start">every open need within 50 km,</text>
+<text x="396" y="548" font-size="18" font-weight="400" fill="#374151" text-anchor="start">commit quantity, reference code</text>
+<rect x="380" y="574" width="400" height="92" rx="12" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+<text x="396" y="606" font-size="22" font-weight="700" fill="#111827" text-anchor="start">5  Village water plan</text>
+<text x="396" y="632" font-size="18" font-weight="400" fill="#374151" text-anchor="start">all plans added up vs water</text>
+<text x="396" y="656" font-size="18" font-weight="400" fill="#374151" text-anchor="start">available; crop-change tips</text>
+<rect x="380" y="682" width="400" height="92" rx="12" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+<text x="396" y="714" font-size="22" font-weight="700" fill="#111827" text-anchor="start">6  Ask (voice chat)</text>
+<text x="396" y="740" font-size="18" font-weight="400" fill="#374151" text-anchor="start">speak, get the answer as audio;</text>
+<text x="396" y="764" font-size="18" font-weight="400" fill="#374151" text-anchor="start">history saved per farmer</text>
+<rect x="890" y="142" width="470" height="92" rx="12" fill="#eff6ff" stroke="#94a3b8" stroke-width="2"/>
+<text x="906" y="174" font-size="22" font-weight="700" fill="#111827" text-anchor="start">Location and soil service</text>
+<text x="906" y="200" font-size="18" font-weight="400" fill="#374151" text-anchor="start">place name, pH, organic carbon,</text>
+<text x="906" y="224" font-size="18" font-weight="400" fill="#374151" text-anchor="start">texture to water-holding capacity</text>
+<rect x="890" y="250" width="470" height="92" rx="12" fill="#f0fdf4" stroke="#94a3b8" stroke-width="2"/>
+<text x="906" y="282" font-size="22" font-weight="700" fill="#111827" text-anchor="start">Crop ranking engine</text>
+<text x="906" y="308" font-size="18" font-weight="400" fill="#374151" text-anchor="start">profit = yield x price x (1-loss) - cost;</text>
+<text x="906" y="332" font-size="18" font-weight="400" fill="#374151" text-anchor="start">score = usual - lambda(usual - bad year)</text>
+<rect x="890" y="358" width="470" height="92" rx="12" fill="#ecfeff" stroke="#94a3b8" stroke-width="2"/>
+<text x="906" y="390" font-size="22" font-weight="700" fill="#111827" text-anchor="start">Water balance and energy</text>
+<text x="906" y="416" font-size="18" font-weight="400" fill="#374151" text-anchor="start">FAO-56 soil water, 30 seasons (feeds</text>
+<text x="906" y="440" font-size="18" font-weight="400" fill="#374151" text-anchor="start">ranking); pump hours &gt; kWh &gt; CO2</text>
+<rect x="890" y="466" width="470" height="92" rx="12" fill="#f0fdf4" stroke="#94a3b8" stroke-width="2"/>
+<text x="906" y="498" font-size="22" font-weight="700" fill="#111827" text-anchor="start">Buyer matching</text>
+<text x="906" y="524" font-size="18" font-weight="400" fill="#374151" text-anchor="start">Haversine &lt;= 50 km, price vs MSP; feeds</text>
+<text x="906" y="548" font-size="18" font-weight="400" fill="#374151" text-anchor="start">demand + glut cap back into ranking</text>
+<rect x="890" y="574" width="470" height="92" rx="12" fill="#ecfeff" stroke="#94a3b8" stroke-width="2"/>
+<text x="906" y="606" font-size="22" font-weight="700" fill="#111827" text-anchor="start">Village roll-up</text>
+<text x="906" y="632" font-size="18" font-weight="400" fill="#374151" text-anchor="start">sum of irrigation demand (m3), kWh, CO2</text>
+<text x="906" y="656" font-size="18" font-weight="400" fill="#374151" text-anchor="start">vs water available (usual / dry year)</text>
+<rect x="890" y="682" width="470" height="92" rx="12" fill="#eff6ff" stroke="#94a3b8" stroke-width="2"/>
+<text x="906" y="714" font-size="22" font-weight="700" fill="#111827" text-anchor="start">Voice pipeline</text>
+<text x="906" y="740" font-size="18" font-weight="400" fill="#374151" text-anchor="start">speech &gt; text &gt; English &gt; LLM</text>
+<text x="906" y="764" font-size="18" font-weight="400" fill="#374151" text-anchor="start">&gt; native text &gt; audio</text>
+<rect x="1470" y="142" width="410" height="92" rx="12" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
+<text x="1486" y="174" font-size="22" font-weight="700" fill="#111827" text-anchor="start">OpenStreetMap, ISRIC SoilGrids</text>
+<text x="1486" y="200" font-size="18" font-weight="400" fill="#374151" text-anchor="start">place name; pH, organic C,</text>
+<text x="1486" y="224" font-size="18" font-weight="400" fill="#374151" text-anchor="start">clay / sand / silt raster</text>
+<rect x="1470" y="250" width="410" height="92" rx="12" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
+<text x="1486" y="282" font-size="22" font-weight="700" fill="#111827" text-anchor="start">CEDA Agmarknet (live)</text>
+<text x="1486" y="308" font-size="18" font-weight="400" fill="#374151" text-anchor="start">mandi prices, harvest months;</text>
+<text x="1486" y="332" font-size="18" font-weight="400" fill="#374151" text-anchor="start">stored 5-year ranges as fallback</text>
+<rect x="1470" y="358" width="410" height="92" rx="12" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
+<text x="1486" y="390" font-size="22" font-weight="700" fill="#111827" text-anchor="start">Open-Meteo (ERA5 + forecast)</text>
+<text x="1486" y="416" font-size="18" font-weight="400" fill="#374151" text-anchor="start">30 y daily rain, ET0, temperature;</text>
+<text x="1486" y="440" font-size="18" font-weight="400" fill="#374151" text-anchor="start">15-day forecast; disk-cached</text>
+<rect x="1470" y="466" width="410" height="92" rx="12" fill="#fff7ed" stroke="#94a3b8" stroke-width="2"/>
+<text x="1486" y="498" font-size="22" font-weight="700" fill="#111827" text-anchor="start">Payment and delivery</text>
+<text x="1486" y="524" font-size="18" font-weight="400" fill="#374151" text-anchor="start">UPI + pickup between farmer</text>
+<text x="1486" y="548" font-size="18" font-weight="400" fill="#374151" text-anchor="start">and buyer (outside the app)</text>
+<rect x="1470" y="574" width="410" height="92" rx="12" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
+<text x="1486" y="606" font-size="22" font-weight="700" fill="#111827" text-anchor="start">Water-security plan</text>
+<text x="1486" y="632" font-size="18" font-weight="400" fill="#374151" text-anchor="start">sustainable water for the village</text>
+<text x="1486" y="656" font-size="18" font-weight="400" fill="#374151" text-anchor="start">(entered by the panchayat)</text>
+<rect x="1470" y="682" width="410" height="92" rx="12" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
+<text x="1486" y="714" font-size="22" font-weight="700" fill="#111827" text-anchor="start">Together AI, Google, Bhashini</text>
+<text x="1486" y="740" font-size="18" font-weight="400" fill="#374151" text-anchor="start">Whisper STT, Llama-3.3 answers,</text>
+<text x="1486" y="764" font-size="18" font-weight="400" fill="#374151" text-anchor="start">translate + TTS (gTTS)</text>
+<line x1="290" y1="188" x2="380" y2="188" stroke="#2563eb" stroke-width="3.5" marker-end="url(#e-data)"/>
+<line x1="780" y1="188" x2="890" y2="188" stroke="#2563eb" stroke-width="3.5" marker-end="url(#e-data)" marker-start="url(#s-data)"/>
+<line x1="1360" y1="188" x2="1470" y2="188" stroke="#2563eb" stroke-width="3.5" marker-end="url(#e-data)" marker-start="url(#s-data)"/>
+<line x1="290" y1="296" x2="380" y2="296" stroke="#2563eb" stroke-width="3.5" marker-end="url(#e-data)" marker-start="url(#s-data)"/>
+<line x1="780" y1="296" x2="890" y2="296" stroke="#16a34a" stroke-width="3.5" marker-end="url(#e-money)" marker-start="url(#s-money)"/>
+<line x1="1470" y1="296" x2="1360" y2="296" stroke="#16a34a" stroke-width="3.5" marker-end="url(#e-money)"/>
+<line x1="290" y1="404" x2="380" y2="404" stroke="#2563eb" stroke-width="3.5" marker-end="url(#e-data)" marker-start="url(#s-data)"/>
+<line x1="780" y1="404" x2="890" y2="404" stroke="#0891b2" stroke-width="3.5" marker-end="url(#e-water)" marker-start="url(#s-water)"/>
+<line x1="1470" y1="404" x2="1360" y2="404" stroke="#0891b2" stroke-width="3.5" marker-end="url(#e-water)"/>
+<line x1="290" y1="512" x2="380" y2="512" stroke="#16a34a" stroke-width="3.5" marker-end="url(#e-money)" marker-start="url(#s-money)"/>
+<line x1="780" y1="512" x2="890" y2="512" stroke="#16a34a" stroke-width="3.5" marker-end="url(#e-money)" marker-start="url(#s-money)"/>
+<line x1="1360" y1="512" x2="1470" y2="512" stroke="#16a34a" stroke-width="3.5" marker-end="url(#e-money)" marker-start="url(#s-money)"/>
+<line x1="290" y1="620" x2="380" y2="620" stroke="#2563eb" stroke-width="3.5" marker-end="url(#e-data)"/>
+<line x1="780" y1="620" x2="890" y2="620" stroke="#0891b2" stroke-width="3.5" marker-end="url(#e-water)" marker-start="url(#s-water)"/>
+<line x1="1470" y1="620" x2="1360" y2="620" stroke="#0891b2" stroke-width="3.5" marker-end="url(#e-water)"/>
+<line x1="290" y1="728" x2="380" y2="728" stroke="#2563eb" stroke-width="3.5" marker-end="url(#e-data)"/>
+<line x1="780" y1="728" x2="890" y2="728" stroke="#2563eb" stroke-width="3.5" marker-end="url(#e-data)" marker-start="url(#s-data)"/>
+<line x1="1360" y1="728" x2="1470" y2="728" stroke="#2563eb" stroke-width="3.5" marker-end="url(#e-data)" marker-start="url(#s-data)"/>
+<text x="335" y="179" font-size="14" font-weight="600" fill="#475569" text-anchor="middle">GPS</text>
+<text x="835" y="179" font-size="14" font-weight="600" fill="#2563eb" text-anchor="middle">place, soil</text>
+<text x="1415" y="179" font-size="14" font-weight="600" fill="#475569" text-anchor="middle">lookup</text>
+<text x="335" y="287" font-size="14" font-weight="600" fill="#475569" text-anchor="middle">choices</text>
+<text x="835" y="287" font-size="14" font-weight="600" fill="#16a34a" text-anchor="middle">crops</text>
+<text x="1415" y="287" font-size="14" font-weight="600" fill="#475569" text-anchor="middle">prices</text>
+<text x="335" y="395" font-size="14" font-weight="600" fill="#475569" text-anchor="middle">dates</text>
+<text x="835" y="395" font-size="14" font-weight="600" fill="#0891b2" text-anchor="middle">schedule</text>
+<text x="1415" y="395" font-size="14" font-weight="600" fill="#475569" text-anchor="middle">weather</text>
+<text x="335" y="503" font-size="14" font-weight="600" fill="#475569" text-anchor="middle">needs</text>
+<text x="835" y="503" font-size="14" font-weight="600" fill="#16a34a" text-anchor="middle">offers</text>
+<text x="1415" y="503" font-size="14" font-weight="600" fill="#475569" text-anchor="middle">UPI</text>
+<text x="335" y="611" font-size="14" font-weight="600" fill="#475569" text-anchor="middle">water</text>
+<text x="835" y="611" font-size="14" font-weight="600" fill="#0891b2" text-anchor="middle">demand</text>
+<text x="1415" y="611" font-size="14" font-weight="600" fill="#475569" text-anchor="middle">input</text>
+<text x="335" y="719" font-size="14" font-weight="600" fill="#475569" text-anchor="middle">voice</text>
+<text x="835" y="719" font-size="14" font-weight="600" fill="#2563eb" text-anchor="middle">answer</text>
+<text x="1415" y="719" font-size="14" font-weight="600" fill="#475569" text-anchor="middle">LLM</text>
+<text x="40" y="804" font-size="17" font-weight="700" fill="#64748b" text-anchor="start">STORED DATA, REFERENCE DATA AND OUTCOMES</text>
+<rect x="40" y="814" width="590" height="168" rx="12" fill="#fefce8" stroke="#ca8a04" stroke-width="2"/>
+<text x="56" y="846" font-size="22" font-weight="700" fill="#713f12" text-anchor="start">Stored data (JSON files)</text>
+<text x="56" y="872" font-size="18" font-weight="400" fill="#374151" text-anchor="start">accounts: farmers, vendors, communities (PIN hash)</text>
+<text x="56" y="896" font-size="18" font-weight="400" fill="#374151" text-anchor="start">plans: planting registry (buyers see totals only)</text>
+<text x="56" y="920" font-size="18" font-weight="400" fill="#374151" text-anchor="start">polls: priced needs, commitments, reference codes</text>
+<text x="56" y="944" font-size="18" font-weight="400" fill="#374151" text-anchor="start">chats, farm profile, irrigation log, energy log</text>
+<rect x="660" y="814" width="590" height="168" rx="12" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
+<text x="676" y="846" font-size="22" font-weight="700" fill="#1e293b" text-anchor="start">Static reference data (cited)</text>
+<text x="676" y="872" font-size="18" font-weight="400" fill="#374151" text-anchor="start">crop table: yield, cost, MSP, procurement, loss</text>
+<text x="676" y="896" font-size="18" font-weight="400" fill="#374151" text-anchor="start">FAO-56 Kc, root depth, depletion; FAO-33 Ky</text>
+<text x="676" y="920" font-size="18" font-weight="400" fill="#374151" text-anchor="start">emission factors: grid 0.727 kg/kWh, diesel 2.68 kg/L</text>
+<text x="676" y="944" font-size="18" font-weight="400" fill="#374151" text-anchor="start">texture to water-holding table (labelled assumption)</text>
+<rect x="1280" y="814" width="600" height="168" rx="12" fill="#ecfdf5" stroke="#059669" stroke-width="2"/>
+<text x="1296" y="846" font-size="22" font-weight="700" fill="#064e3b" text-anchor="start">Measured outcomes (vs baseline practice)</text>
+<text x="1296" y="872" font-size="18" font-weight="400" fill="#374151" text-anchor="start">Water: m3 per acre over 30 simulated seasons</text>
+<text x="1296" y="896" font-size="18" font-weight="400" fill="#374151" text-anchor="start">Energy: pump kWh and kg CO2 per season</text>
+<text x="1296" y="920" font-size="18" font-weight="400" fill="#374151" text-anchor="start">Waste: harvest matched to a priced buyer</text>
+<text x="1296" y="944" font-size="18" font-weight="400" fill="#374151" text-anchor="start">Income: usual-year and bad-year profit per acre</text>
+<line x1="560" y1="774" x2="560" y2="812" stroke="#2563eb" stroke-width="3.5" marker-end="url(#e-data)"/>
+<line x1="955" y1="774" x2="955" y2="812" stroke="#2563eb" stroke-width="3.5" marker-end="url(#e-data)"/>
+<line x1="1575" y1="774" x2="1575" y2="812" stroke="#16a34a" stroke-width="3.5" marker-end="url(#e-money)"/>
+<text x="40" y="1052" font-size="17" font-weight="400" fill="#64748b" text-anchor="start">Today: JSON files and a Streamlit app (prototype). Production: one database table per file, same modules. Demo vendors and prices are synthetic.</text>
+<line x1="1130" y1="52" x2="1174" y2="52" stroke="#2563eb" stroke-width="4" marker-end="url(#e-data)"/>
+<text x="1184" y="58" font-size="18" font-weight="600" fill="#334155" text-anchor="start">Data</text>
+<line x1="1320" y1="52" x2="1364" y2="52" stroke="#0891b2" stroke-width="4" marker-end="url(#e-water)"/>
+<text x="1374" y="58" font-size="18" font-weight="600" fill="#334155" text-anchor="start">Water</text>
+<line x1="1510" y1="52" x2="1554" y2="52" stroke="#d97706" stroke-width="4" marker-end="url(#e-energy)"/>
+<text x="1564" y="58" font-size="18" font-weight="600" fill="#334155" text-anchor="start">Energy / CO2</text>
+<line x1="1700" y1="52" x2="1744" y2="52" stroke="#16a34a" stroke-width="4" marker-end="url(#e-money)"/>
+<text x="1754" y="58" font-size="18" font-weight="600" fill="#334155" text-anchor="start">Money / price</text>
+</svg>

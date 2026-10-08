@@ -171,8 +171,11 @@ def tab_schedule(user, rows):
         st.bar_chart(pd.DataFrame({t("farm.depth"): [e["gross_mm"] for e in ev]}, index=[e["date"].strftime("%d %b") for e in ev]))
     st.caption(t("farm.sched_note", eff=int(eff * 100), cap=water.MAX_NET_IRRIGATION_MM))
 
-    # what the farmer really did
+    # what the farmer really did (only possible once the crop is sown)
     st.markdown(f"**{t('farm.log_title')}**")
+    if sow > date.today():
+        st.caption(t("farm.log_not_yet", date=sow.strftime("%d %b %Y")))
+        return
     st.caption(t("farm.log_help"))
     c1, c2, c3 = st.columns([2, 2, 1])
     wday = c1.date_input(t("wat.date"), value=date.today(), min_value=sow, max_value=date.today(), key="farm_wdate")
